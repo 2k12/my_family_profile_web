@@ -33,7 +33,6 @@ export function DynamicForm() {
         defaultValues: {}, 
     });
 
-    // Reset form with fetched data
     useEffect(() => {
         if (!isLoading && ficha) {
             const formData = {

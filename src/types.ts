@@ -47,7 +47,7 @@ export interface Ficha {
     local_id?: string;
     nombre_familia?: string;
     datos: Record<string, any>;
-    status: 'BORRADOR' | 'COMPLETO' | 'PENDIENTE';
+    status: 'BORRADOR' | 'COMPLETO' | 'PENDIENTE' | 'verified' | 'pending' | 'rejected';
     created_at: string;
     updated_at: string;
 }

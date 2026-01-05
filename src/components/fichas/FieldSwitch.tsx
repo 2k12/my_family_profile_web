@@ -17,6 +17,7 @@ import type { Field } from "@/types";
 import { ArrayField } from "./fields/ArrayField";
 import { LocationMapWidget } from "./fields/LocationMapWidget";
 import api from "@/lib/api";
+import { getComputedOptions } from "@/lib/field-utils";
 
 interface FieldSwitchProps {
     field: Field;
@@ -94,36 +95,17 @@ export function FieldSwitch({ field, allFields }: FieldSwitchProps) {
     // Let's rely on User manually changing it for now to avoid wiping DB data on edit load.
     // OR: Check if `fieldValue` exists in `dynamicOptions` after fetch? 
     
-    // Use dynamic options if available, else field.options
-    const getSafeOptions = (f: Field) => {
-        if (isLocationField) return dynamicOptions; // Use dynamic options for location
-        
-        // Check dynamic_source first if it might contain range info
-        const source = f.dynamic_source || f.options;
+    // Use dynamic options logic from utility
+    const safeOptions = getComputedOptions(field, isLocationField ? dynamicOptions : []);
 
-        if (Array.isArray(f.options)) return f.options;
-        
-        if (typeof source === 'string' && source.startsWith('range:')) {
-            try {
-                const rangeParts = source.replace('range:', '').split('-');
-                if (rangeParts.length === 2) {
-                    const min = parseInt(rangeParts[0].trim());
-                    const max = parseInt(rangeParts[1].trim());
-                    if (!isNaN(min) && !isNaN(max)) {
-                        return Array.from({ length: max - min + 1 }, (_, i) => ({
-                            label: String(min + i),
-                            value: String(min + i)
-                        }));
-                    }
-                }
-            } catch (e) {
-                console.error("Error parsing range options", e);
-            }
-        }
-        return [];
-    };
-
-    const safeOptions = getSafeOptions(field);
+    if (field.name === 'numero_ficha_familiar') {
+        console.log('DEBUG COMPONENT', { 
+            name: field.name,
+            firstOption: safeOptions[0], // Check structure: {label: "1", value: "1"}
+            optionsCount: safeOptions.length,
+            currentValue: watch(field.name)
+        });
+    }
 
 
     // --- RENDERS ---
@@ -190,20 +172,17 @@ export function FieldSwitch({ field, allFields }: FieldSwitchProps) {
                                             if (field.name === 'select_provincia') setValue('select_canton', '');
                                             if (field.name === 'select_canton') setValue('select_parroquia', '');
                                         }} 
-                                        value={value != null ? String(value) : undefined}
+                                        value={value ? String(value) : undefined} 
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Seleccione..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {safeOptions.map((opt: any) => {
-                                                const itemValue = String(opt.value !== undefined ? opt.value : opt.id);
-                                                return (
-                                                    <SelectItem key={itemValue} value={itemValue}>
-                                                        {opt.label || opt.name}
-                                                    </SelectItem>
-                                                );
-                                            })}
+                                            {safeOptions.map((opt) => (
+                                                <SelectItem key={opt.value} value={opt.value}>
+                                                    {opt.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 )}

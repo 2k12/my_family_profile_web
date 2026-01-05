@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Trash2, Plus, CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ChipSelect } from "./ChipSelect";
+import { getComputedOptions } from "@/lib/field-utils";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -63,30 +64,8 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
       
       const fieldDef = allFields.find(f => f.name === col);
 
-      const getSafeOptions = (f: Field) => {
-          // Check dynamic_source first if it might contain range info
-          const source = f.dynamic_source || f.options;
-
-          if (Array.isArray(f.options)) return f.options;
-          
-          if (typeof source === 'string' && source.startsWith('range:')) {
-            try {
-                const rangeParts = source.replace('range:', '').split('-');
-                if (rangeParts.length === 2) {
-                    const min = parseInt(rangeParts[0].trim());
-                    const max = parseInt(rangeParts[1].trim());
-                    if (!isNaN(min) && !isNaN(max)) {
-                        return Array.from({ length: max - min + 1 }, (_, i) => ({
-                            label: String(min + i),
-                            value: String(min + i)
-                        }));
-                    }
-                }
-            } catch (e) { console.error(e) }
-          }
-          return [];
-      };
-      const safeOptions = fieldDef ? getSafeOptions(fieldDef) : [];
+      // Use shared utility for parsing range/options
+      const safeOptions = fieldDef ? getComputedOptions(fieldDef) : [];
 
       // 1. SELECT (if defined in schema)
       // Added range type check here implicitly via safeOptions or explicit check
