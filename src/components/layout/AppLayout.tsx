@@ -52,7 +52,7 @@ export const AppLayout = () => {
             <header className="border-b">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-8">
-                        <div className="font-bold text-xl">My Family Profile</div>
+                        <div className="font-bold text-xl">Mi Perfil Familiar</div>
                         
                         <nav className="hidden md:flex items-center gap-6">
                             {navItems.filter(item => {

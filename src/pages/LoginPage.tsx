@@ -95,7 +95,7 @@ export const LoginPage = () => {
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
         <div className="absolute bottom-10 left-10 z-20 text-white p-6 backdrop-blur-sm bg-black/30 rounded-lg max-w-lg">
-             <h2 className="text-2xl font-bold mb-2">My Family Profile</h2>
+             <h2 className="text-2xl font-bold mb-2">Mi Perfil Familiar</h2>
              <p className="text-sm opacity-90">Plataforma integral para la gestión y análisis de fichas familiares.</p>
         </div>
       </div>
