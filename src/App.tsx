@@ -5,6 +5,8 @@ import { FormBuilderLayout } from '@/components/admin/FormBuilder/FormBuilderLay
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { UsersPage } from '@/pages/UsersPage';
+import { FichaEditPage } from '@/pages/FichaEditPage';
+import { FichasListPage } from '@/pages/FichasListPage';
 import { Toaster } from "@/components/ui/sonner"
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
         <Route element={<AppLayout />}>
              <Route path="/admin/forms" element={<FormBuilderLayout />} />
              <Route path="/admin/users" element={<UsersPage />} />
+             <Route path="/admin/fichas" element={<FichasListPage />} />
+             <Route path="/admin/fichas/:id/edit" element={<FichaEditPage />} />
              <Route path="/bi" element={<BiDashboard />} />
              <Route path="/profile" element={<ProfilePage />} />
         </Route>

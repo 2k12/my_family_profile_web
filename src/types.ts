@@ -10,10 +10,11 @@ export interface Field {
   section_id?: number;
   name: string;
   label: string;
-  type: 'text' | 'number' | 'date' | 'select' | 'radio' | 'checkbox' | 'textarea' | 'signature' | 'gps';
+  type: 'text' | 'number' | 'date' | 'select' | 'radio' | 'checkbox' | 'textarea' | 'signature' | 'gps' | 'range';
   required: boolean;
   order_index: number;
-  options?: FieldOption[];
+  options?: FieldOption[] | string;
+  dynamic_source?: string;
 }
 
 export interface Section {
@@ -39,3 +40,14 @@ export interface User {
     is_active?: boolean;
 }
 
+
+export interface Ficha {
+    id: number;
+    user_id: number;
+    local_id?: string;
+    nombre_familia?: string;
+    datos: Record<string, any>;
+    status: 'BORRADOR' | 'COMPLETO' | 'PENDIENTE';
+    created_at: string;
+    updated_at: string;
+}

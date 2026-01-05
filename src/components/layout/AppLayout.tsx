@@ -41,7 +41,8 @@ export const AppLayout = () => {
     if (!user) return null;
 
     const navItems = [
-        { label: 'Gestión Fichas', path: '/admin/forms', icon: FileText },
+        { label: 'Gestión Fichas', path: '/admin/forms', icon: FileText }, // Keeping legacy name for forms builder or rename?
+        { label: 'Fichas Familiares', path: '/admin/fichas', icon: LayoutDashboard }, // Using LayoutDashboard temporarily
         { label: 'Gestión Usuarios', path: '/admin/users', icon: UserIcon },
         { label: 'BI Analytics', path: '/bi', icon: LayoutDashboard },
     ];
