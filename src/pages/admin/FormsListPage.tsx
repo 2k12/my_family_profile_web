@@ -82,9 +82,14 @@ export function FormsListPage() {
           <h1 className="text-3xl font-bold tracking-tight">Formularios</h1>
           <p className="text-muted-foreground">Administra y configura las fichas de datos.</p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Nuevo Formulario
-        </Button>
+        <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/admin/iso8000')}>
+                <FileText className="mr-2 h-4 w-4" /> ISO 8000
+            </Button>
+            <Button onClick={() => setIsCreateOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Nuevo Formulario
+            </Button>
+        </div>
       </div>
 
       {loading ? (

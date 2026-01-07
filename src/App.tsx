@@ -8,6 +8,7 @@ import { ProfilePage } from '@/pages/ProfilePage';
 import { UsersPage } from '@/pages/UsersPage';
 import { FichaEditPage } from '@/pages/FichaEditPage';
 import { FichasListPage } from '@/pages/FichasListPage';
+import { ISO8000Page } from '@/pages/admin/ISO8000Page';
 import { Toaster } from "@/components/ui/sonner"
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         {/* Protected Routes wrapped in AppLayout */}
         <Route element={<AppLayout />}>
              <Route path="/admin/forms" element={<FormsListPage />} />
+             <Route path="/admin/iso8000" element={<ISO8000Page />} />
              <Route path="/admin/forms/:id" element={<FormBuilderLayout />} />
              <Route path="/admin/users" element={<UsersPage />} />
              <Route path="/admin/fichas" element={<FichasListPage />} />
