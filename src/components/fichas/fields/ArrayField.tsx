@@ -42,19 +42,26 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
   const [showAddConfirm, setShowAddConfirm] = useState(false);
 
-  // Infer columns from the first item or defaults
+  // Infer columns from metadata (allFields) or first item
   const getColumns = () => {
+    // 1. Use metadata if available (Best for dynamic forms)
+    if (allFields && allFields.length > 0) {
+        return allFields.map(f => f.name);
+    }
+
+    // 2. Infer from data if metadata is missing (Legacy fallback)
     if (fields.length > 0) {
         // Exclude internal id from useFieldArray
         const sample = fields[0] as Record<string, any>;
         return Object.keys(sample).filter(k => k !== 'id');
     }
-    // Fallbacks based on known arrays in project context
+
+    // 3. Hardcoded fallbacks (Legacy)
     if (name.includes('miembros_generales')) return ['cedula', 'nombres', 'apellidos', 'sexo', 'fecha_nacimiento', 'parentesco', 'grupo_edad', 'ocupacion', 'escolaridad', 'salud_bucal', 'esquema_vacunas', 'predis_enfermedad_discapacidad', 'histoira_clinica', 'familiar_general_x'];
     if (name.includes('miembros_fallecidos')) return ['nombres', 'edad', 'cause', 'fecha_fallecimiento'];
     if (name.includes('problemas_ambientales')) return ['tipo_contaminacion', 'causa', 'frecuencia'];
     
-    return ['valor']; // Fallback
+    return ['valor']; // Ultimate Fallback
   };
 
   const columns = getColumns();

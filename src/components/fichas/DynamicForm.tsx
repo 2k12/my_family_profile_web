@@ -178,8 +178,21 @@ export function DynamicForm() {
                         // We should prioritize specific matches.
                         
                         let finalArrayKey = arrayKey;
+
+                        // Override for legacy hardcoded sections
                         if (normalizedSectionName.includes('especiales')) finalArrayKey = 'miembros_especiales_data';
                         if (normalizedSectionName.includes('fallecidos')) finalArrayKey = 'miembros_fallecidos_data';
+
+                        // Generic fallback for any other template section
+                        if (!finalArrayKey && section.is_template) {
+                             const baseKey = normalizedSectionName
+                                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+                                .replace(/[^a-z0-9]/g, '_') // replace non-alphanumeric with _
+                                .replace(/_+/g, '_')   // collapse multiple _
+                                .replace(/^_|_$/g, ''); // trim _
+                            
+                            finalArrayKey = `${baseKey}_data`;
+                        }
 
                         // User requested "Familiares" to use Card View, but others use Table View
                         const isFamiliaresTab = normalizedSectionName.includes('familiares') && 
