@@ -11,8 +11,8 @@ export const getComputedOptions = (field: Field, dynamicOptions: any[] = []): Fi
     // 1. Static Options (from database/schema)
     if (Array.isArray(field.options)) {
         options = field.options.map((opt: any) => ({
-            label: opt.label || opt.name,
-            value: String(opt.value !== undefined ? opt.value : opt.id)
+            label: opt.label || opt.name || 'Sin etiqueta',
+            value: String(opt.value !== undefined && opt.value !== null ? opt.value : opt.id).trim()
         }));
     }
 

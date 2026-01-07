@@ -200,6 +200,147 @@ export function DynamicForm() {
                                             allFields={section.fields}
                                             renderMode={renderMode} 
                                         />
+                                    ) : normalizedSectionName.includes('riesgo') ? (
+                                        // Custom rendering for Riesgos to group A, B, C
+                                        <div className="space-y-8">
+                                            {/* Risk Score Card */}
+                                            {(() => {
+                                                // Calculate Score Live
+                                                const riskFields = section.fields.filter(f => 
+                                                    !f.label.toLowerCase().includes('fecha') && 
+                                                    !f.label.toLowerCase().includes('responsable')
+                                                );
+                                                
+                                                // We need to watch these fields. 
+                                                // Using methods.watch() directly here might trigger re-renders on ANY change, which is fine for this form size.
+                                                // To be precise we sum the current values.
+                                                const allValues = methods.watch();
+                                                const score = riskFields.reduce((acc, field) => {
+                                                    const val = allValues[field.name];
+                                                    // Parse value: if array (checkbox), sum items? Usually risk is radio/select single value.
+                                                    // Assuming single numeric value stored as string
+                                                    const num = parseInt(String(val || 0), 10);
+                                                    return acc + (isNaN(num) ? 0 : num);
+                                                }, 0);
+
+                                                // Determine Level and Color
+                                                // Determine Color only (Label comes from DB)
+                                                let color = 'bg-green-600';
+                                                let textColor = 'text-white';
+                                                
+                                                if (score > 0 && score <= 14) { color = 'bg-yellow-400'; textColor = 'text-black'; }
+                                                else if (score >= 15 && score <= 34) { color = 'bg-orange-500'; textColor = 'text-white'; }
+                                                else if (score >= 35) { color = 'bg-red-600'; textColor = 'text-white'; }
+
+                                                return (
+                                                    <div className="flex flex-col gap-4 mb-6">
+                                                        <div className={cn("p-6 rounded-lg shadow-sm flex items-center justify-between border", color)}>
+                                                            <div className={cn("flex flex-col", textColor)}>
+                                                                <span className="text-sm font-semibold uppercase opacity-90">Nivel de Riesgo</span>
+                                                                <span className="text-3xl font-bold">{ficha?.risk_level || 'Pendiente de Guardar'}</span>
+                                                            </div>
+                                                            <div className={cn("flex flex-col items-end", textColor)}>
+                                                                <span className="text-sm font-semibold uppercase opacity-90">Puntaje Actual</span>
+                                                                <span className="text-5xl font-black">{score}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+
+                                            {/* Header Fields (Fecha, Responsable) */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {section.fields.filter(f => 
+                                                    f.label.toLowerCase().includes('fecha') || 
+                                                    f.label.toLowerCase().includes('responsable')
+                                                ).map(field => (
+                                                    <div key={field.id} className="col-span-1">
+                                                        <FieldSwitch field={field} allFields={allFields} />
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Group A: Biológicos */}
+                                            <div className="border rounded-lg p-4 bg-slate-50/50">
+                                                <h3 className="text-lg font-semibold mb-4 text-primary">A. Riesgos Biológicos</h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {section.fields.filter(f => {
+                                                        const l = f.label.toLowerCase();
+                                                        const n = f.name.toLowerCase();
+                                                        return !l.includes('fecha') && !l.includes('responsable') && 
+                                                               (l.includes('a.') || l.startsWith('a ') || n.includes('biologico'));
+                                                    }).map(field => (
+                                                        <div key={field.id}>
+                                                            <FieldSwitch field={field} allFields={allFields} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Group B: Sanitarios */}
+                                            <div className="border rounded-lg p-4 bg-slate-50/50">
+                                                <h3 className="text-lg font-semibold mb-4 text-primary">B. Riesgos Sanitarios</h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {section.fields.filter(f => {
+                                                        const l = f.label.toLowerCase();
+                                                        const n = f.name.toLowerCase();
+                                                        return !l.includes('fecha') && !l.includes('responsable') && 
+                                                               (l.includes('b.') || l.startsWith('b ') || n.includes('sanitario') || n.includes('agua') || n.includes('basura'));
+                                                    }).map(field => (
+                                                        <div key={field.id}>
+                                                            <FieldSwitch field={field} allFields={allFields} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Group C: Socio-Económicos */}
+                                            <div className="border rounded-lg p-4 bg-slate-50/50">
+                                                <h3 className="text-lg font-semibold mb-4 text-primary">C. Riesgos Socio-Económicos</h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {section.fields.filter(f => {
+                                                        const l = f.label.toLowerCase();
+                                                        const n = f.name.toLowerCase();
+                                                        return !l.includes('fecha') && !l.includes('responsable') && 
+                                                               (l.includes('c.') || l.startsWith('c ') || n.includes('socio') || n.includes('econom') || n.includes('pobreza'));
+                                                    }).map(field => (
+                                                        <div key={field.id}>
+                                                            <FieldSwitch field={field} allFields={allFields} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Catch-all for any missed fields */}
+                                            {section.fields.filter(f => {
+                                                const l = f.label.toLowerCase();
+                                                const n = f.name.toLowerCase();
+                                                const isHeader = l.includes('fecha') || l.includes('responsable');
+                                                const isA = l.includes('a.') || l.startsWith('a ') || n.includes('biologico');
+                                                const isB = l.includes('b.') || l.startsWith('b ') || n.includes('sanitario') || n.includes('agua') || n.includes('basura');
+                                                const isC = l.includes('c.') || l.startsWith('c ') || n.includes('socio') || n.includes('econom') || n.includes('pobreza');
+                                                return !isHeader && !isA && !isB && !isC;
+                                            }).length > 0 && (
+                                                <div className="border rounded-lg p-4">
+                                                    <h3 className="text-lg font-semibold mb-4">Otros</h3>
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        {section.fields.filter(f => {
+                                                            const l = f.label.toLowerCase();
+                                                            const n = f.name.toLowerCase();
+                                                            const isHeader = l.includes('fecha') || l.includes('responsable');
+                                                            const isA = l.includes('a.') || l.startsWith('a ') || n.includes('biologico');
+                                                            const isB = l.includes('b.') || l.startsWith('b ') || n.includes('sanitario') || n.includes('agua') || n.includes('basura');
+                                                            const isC = l.includes('c.') || l.startsWith('c ') || n.includes('socio') || n.includes('econom') || n.includes('pobreza');
+                                                            return !isHeader && !isA && !isB && !isC;
+                                                        }).map(field => (
+                                                            <div key={field.id}>
+                                                                <FieldSwitch field={field} allFields={allFields} />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     ) : (
                                         // Render standard fields
                                         // Apply Grid layout for "Información General" to avoid ultra-wide inputs through conditional class

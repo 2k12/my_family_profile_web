@@ -48,6 +48,8 @@ export interface Ficha {
     nombre_familia?: string;
     datos: Record<string, any>;
     status: 'BORRADOR' | 'COMPLETO' | 'PENDIENTE' | 'verified' | 'pending' | 'rejected';
+    risk_score?: number;
+    risk_level?: string;
     created_at: string;
     updated_at: string;
 }

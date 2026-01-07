@@ -98,12 +98,15 @@ export function FieldSwitch({ field, allFields }: FieldSwitchProps) {
     // Use dynamic options logic from utility
     const safeOptions = getComputedOptions(field, isLocationField ? dynamicOptions : []);
 
-    if (field.name === 'numero_ficha_familiar') {
-        console.log('DEBUG COMPONENT', { 
+    if (field.name === 'numero_ficha_familiar' || field.name.startsWith('riesgo_')) {
+        console.log(`DEBUG FIELD [${field.name}]`, { 
             name: field.name,
-            firstOption: safeOptions[0], // Check structure: {label: "1", value: "1"}
+            value: fieldValue,
+            valueType: typeof fieldValue,
             optionsCount: safeOptions.length,
-            currentValue: watch(field.name)
+            firstOption: safeOptions[0],
+            rawOptions: field.options,
+            dynamicSource: field.dynamic_source
         });
     }
 
@@ -172,7 +175,7 @@ export function FieldSwitch({ field, allFields }: FieldSwitchProps) {
                                             if (field.name === 'select_provincia') setValue('select_canton', '');
                                             if (field.name === 'select_canton') setValue('select_parroquia', '');
                                         }} 
-                                        value={value ? String(value) : undefined} 
+                                        value={value ? String(value).trim() : undefined} 
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Seleccione..." />
