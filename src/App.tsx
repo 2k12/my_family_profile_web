@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { BiDashboard } from '@/pages/BiDashboard';
 import { FormBuilderLayout } from '@/components/admin/FormBuilder/FormBuilderLayout';
+import { FormsListPage } from '@/pages/admin/FormsListPage';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { UsersPage } from '@/pages/UsersPage';
@@ -17,7 +18,8 @@ function App() {
         
         {/* Protected Routes wrapped in AppLayout */}
         <Route element={<AppLayout />}>
-             <Route path="/admin/forms" element={<FormBuilderLayout />} />
+             <Route path="/admin/forms" element={<FormsListPage />} />
+             <Route path="/admin/forms/:id" element={<FormBuilderLayout />} />
              <Route path="/admin/users" element={<UsersPage />} />
              <Route path="/admin/fichas" element={<FichasListPage />} />
              <Route path="/admin/fichas/:id/edit" element={<FichaEditPage />} />

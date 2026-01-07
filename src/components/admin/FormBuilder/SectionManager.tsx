@@ -4,16 +4,16 @@ import type { Section, Field } from '@/types';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, GripVertical, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { FieldEditorSheet } from './FieldEditorSheet';
 import api from '@/lib/api';
 
 interface SectionManagerProps {
   sections: Section[];
   onRefresh: () => void;
+  onEditSection: (section: Section) => void;
 }
 
-export const SectionManager: React.FC<SectionManagerProps> = ({ sections, onRefresh }) => {
+export const SectionManager: React.FC<SectionManagerProps> = ({ sections, onRefresh, onEditSection }) => {
   const [editingField, setEditingField] = useState<Field | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [currentSectionId, setCurrentSectionId] = useState<number | null>(null);
@@ -64,10 +64,26 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ sections, onRefr
         {sections.map((section) => (
           <AccordionItem key={section.id} value={`section-${section.id}`} className="border rounded-lg bg-card px-4">
              <AccordionTrigger className="hover:no-underline">
-                <div className="flex items-center justify-between w-full mr-4">
-                   <span className="text-lg font-semibold">{section.name}</span>
-                   <span className="text-sm text-muted-foreground mr-auto ml-4">({section.fields.length} campos)</span>
-                </div>
+                 <div className="flex items-center justify-between w-full mr-4">
+                    <span className="text-lg font-semibold flex items-center gap-2">
+                        {section.name}
+                        {section.is_template && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">Plantilla</span>}
+                    </span>
+                    <div className="flex items-center gap-2">
+                         <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8" 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEditSection(section);
+                            }}
+                         >
+                            <Edit className="h-4 w-4" />
+                         </Button>
+                         <span className="text-sm text-muted-foreground mr-auto ml-4">({section.fields.length} campos)</span>
+                    </div>
+                 </div>
              </AccordionTrigger>
              <AccordionContent className="pt-4 pb-4 space-y-2">
                 {section.fields.length === 0 ? (
@@ -110,6 +126,7 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ sections, onRefr
         field={editingField}
         sectionId={currentSectionId || undefined}
         onSave={handleSaveField}
+        allSections={sections}
       />
     </>
   );

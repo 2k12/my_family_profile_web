@@ -15,6 +15,7 @@ export interface Field {
   order_index: number;
   options?: FieldOption[] | string;
   dynamic_source?: string;
+  linked_section_id?: number;
 }
 
 export interface Section {
@@ -22,6 +23,7 @@ export interface Section {
   form_id?: number;
   name: string;
   order_index: number;
+  is_template?: boolean;
   fields: Field[];
 }
 
@@ -29,6 +31,7 @@ export interface FormStructure {
   id: number;
   name: string;
   description?: string;
+  version?: string;
   sections: Section[];
 }
 

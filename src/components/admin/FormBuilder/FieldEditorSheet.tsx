@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import type { Field, FieldOption } from '@/types';
+import type { Field, FieldOption, Section } from '@/types';
 
 interface FieldEditorSheetProps {
   open: boolean;
@@ -13,6 +13,7 @@ interface FieldEditorSheetProps {
   field: Field | null; // null means new field
   onSave: (field: Field) => void;
   sectionId?: number;
+  allSections: Section[];
 }
 
 export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
@@ -20,15 +21,18 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
   onOpenChange,
   field,
   onSave,
-  sectionId
+  sectionId,
+  allSections
 }) => {
-  const { register, control, handleSubmit, reset, watch, setValue } = useForm<Field>({
+  const { register, handleSubmit, reset, watch, setValue } = useForm<Field>({
     defaultValues: {
       name: '',
       label: '',
       type: 'text',
       required: false,
-      options: []
+      options: [],
+      dynamic_source: 'static',
+      linked_section_id: undefined
     }
   });
   
@@ -40,7 +44,14 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
   useEffect(() => {
     if (field) {
       reset(field);
-      setOptions(field.options || []);
+      // Ensure options is array
+      if (typeof field.options === 'string') {
+          // Attempt parse if JSON string or ignore?
+          // For now assuming existing options structure is mostly compliant or ignore string content for UI list
+          setOptions([]);
+      } else {
+          setOptions(field.options || []);
+      }
     } else {
       reset({
         name: '',
@@ -110,8 +121,83 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
               <option value="radio">Radio Button</option>
               <option value="checkbox">Checkbox</option>
               <option value="textarea">Área de texto</option>
+              <option value="range">Rango / Slider</option>
               <option value="signature">Firma</option>
               <option value="gps">GPS</option>
+            </select>
+          </div>
+
+          {/* Dynamic Source Configuration */}
+          <div className="space-y-4 rounded-md border p-4 bg-muted/10">
+              <Label className="font-semibold">Fuente de Datos (Dynamic Source)</Label>
+              
+              <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                       <input 
+                          type="radio" 
+                          id="ds_static" 
+                          name="ds_type" 
+                          checked={!watch('dynamic_source') || watch('dynamic_source') === 'static' || !watch('dynamic_source')?.startsWith('range:')}
+                          onChange={() => setValue('dynamic_source', 'static')}
+                          className="h-4 w-4"
+                       />
+                       <Label htmlFor="ds_static" className="font-normal">Estático</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                       <input 
+                          type="radio" 
+                          id="ds_range" 
+                          name="ds_type" 
+                          checked={watch('dynamic_source')?.startsWith('range:') || false}
+                          onChange={() => setValue('dynamic_source', 'range:0-10')}
+                          className="h-4 w-4"
+                       />
+                       <Label htmlFor="ds_range" className="font-normal">Rango Numérico</Label>
+                  </div>
+              </div>
+
+               {watch('dynamic_source')?.startsWith('range:') && (
+                 <div className="grid grid-cols-2 gap-4 mt-2">
+                    <div className="space-y-1">
+                        <Label className="text-xs">Mínimo</Label>
+                        <Input 
+                            type="number"
+                            placeholder="0"
+                            value={watch('dynamic_source')?.split(':')[1]?.split('-')[0] || '0'}
+                            onChange={(e) => {
+                                const currentMax = watch('dynamic_source')?.split(':')[1]?.split('-')[1] || '10';
+                                setValue('dynamic_source', `range:${e.target.value}-${currentMax}`);
+                            }}
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Máximo</Label>
+                        <Input 
+                            type="number"
+                            placeholder="10"
+                            value={watch('dynamic_source')?.split(':')[1]?.split('-')[1] || '10'}
+                            onChange={(e) => {
+                                const currentMin = watch('dynamic_source')?.split(':')[1]?.split('-')[0] || '0';
+                                setValue('dynamic_source', `range:${currentMin}-${e.target.value}`);
+                            }}
+                        />
+                    </div>
+                 </div>
+               )}
+          </div>
+
+          {/* Linked Section */}
+          <div className="space-y-2">
+            <Label htmlFor="linked_section">Sección Vinculada (Opcional)</Label>
+            <select
+               id="linked_section"
+               {...register('linked_section_id')}
+               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                <option value="">-- Ninguna --</option>
+                {allSections.map(s => (
+                    <option key={s.id} value={s.id}>{s.name} (Orden: {s.order_index})</option>
+                ))}
             </select>
           </div>
 
