@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { BiDashboard } from '@/pages/BiDashboard';
 import { FormBuilderLayout } from '@/components/admin/FormBuilder/FormBuilderLayout';
 import { FormsListPage } from '@/pages/admin/FormsListPage';
@@ -16,6 +18,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         
         {/* Protected Routes wrapped in AppLayout */}
         <Route element={<AppLayout />}>

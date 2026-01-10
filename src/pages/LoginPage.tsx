@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,7 +33,7 @@ export const LoginPage = () => {
         }
     } catch (err: any) {
         console.error(err);
-        toast.error('Credenciales inválidas o error de conexión');
+        toast.error(err.response?.data?.message || 'Credenciales inválidas o error de conexión');
     } finally {
         setLoading(false);
     }
@@ -65,6 +65,12 @@ export const LoginPage = () => {
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Contraseña</Label>
+                <Link
+                  to="/forgot-password"
+                  className="ml-auto inline-block text-sm underline"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
               </div>
               <Input
                 id="password"
