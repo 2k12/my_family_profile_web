@@ -322,6 +322,81 @@ export function FieldSwitch({ field, allFields }: FieldSwitchProps) {
                     case 'number':
                          return <Input type="number" {...register(field.name, { required: field.required })} {...commonProps} />;
 
+                    case 'image':
+                        return (
+                            <Controller
+                                control={control}
+                                name={field.name}
+                                rules={{ required: field.required }}
+                                render={({ field: { onChange, value } }) => (
+                                    <div className="space-y-4 rounded-md border p-4 bg-muted/10">
+                                        {value && typeof value === 'string' ? (
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="relative group">
+                                                    <img 
+                                                        src={value.startsWith('data:') || value.startsWith('http') ? value : `data:image/jpeg;base64,${value}`} 
+                                                        alt="Vista previa" 
+                                                        className="max-h-64 max-w-full rounded-lg border shadow-sm object-contain bg-white"
+                                                    />
+                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-lg">
+                                                        <Button
+                                                            type="button"
+                                                            variant="destructive"
+                                                            size="sm"
+                                                            onClick={() => onChange('')}
+                                                        >
+                                                            Eliminar Imagen
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full">
+                                                     <Label className="text-xs text-muted-foreground mb-1 block">¿Desea cambiar la imagen?</Label>
+                                                     <Input
+                                                        id={field.name}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="cursor-pointer"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) {
+                                                                const reader = new FileReader();
+                                                                reader.onloadend = () => {
+                                                                    onChange(reader.result as string);
+                                                                };
+                                                                reader.readAsDataURL(file);
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg bg-white/50">
+                                                    <p className="text-sm text-muted-foreground">Sin imagen seleccionada</p>
+                                                </div>
+                                                <Input
+                                                    id={field.name}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="cursor-pointer"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) {
+                                                            const reader = new FileReader();
+                                                            reader.onloadend = () => {
+                                                                onChange(reader.result as string);
+                                                            };
+                                                            reader.readAsDataURL(file);
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            />
+                        );
+
                     default: // text
                         return <Input type="text" {...register(field.name, { required: field.required })} {...commonProps} />;
                 }

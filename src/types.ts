@@ -10,7 +10,7 @@ export interface Field {
   section_id?: number;
   name: string;
   label: string;
-  type: 'text' | 'number' | 'date' | 'select' | 'radio' | 'checkbox' | 'textarea' | 'signature' | 'gps' | 'range';
+  type: 'text' | 'number' | 'date' | 'select' | 'radio' | 'checkbox' | 'textarea' | 'signature' | 'gps' | 'range' | 'image';
   required: boolean;
   order_index: number;
   options?: FieldOption[] | string;

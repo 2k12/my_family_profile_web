@@ -124,6 +124,7 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
               <option value="range">Rango / Slider</option>
               <option value="signature">Firma</option>
               <option value="gps">GPS</option>
+              <option value="image">Imagen</option>
             </select>
           </div>
 
