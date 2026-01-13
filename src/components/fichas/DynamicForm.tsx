@@ -14,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrayField } from './fields/ArrayField';
 import { cn } from "@/lib/utils";
+import { generateFichaPDF } from "@/lib/pdf-generator";
+import { FileText, Smartphone, MapPin, Info, Calendar } from "lucide-react";
 
 // Define the shape of the form data
 interface FichaFormData {
@@ -121,6 +123,27 @@ export function DynamicForm() {
                                 </Select>
                             )}
                         />
+                        <Button 
+                            type="button" 
+                            variant="secondary" 
+                            onClick={async () => {
+                                if (ficha && schema) {
+                                    const toastId = toast.loading("Generando PDF...");
+                                    try {
+                                        await generateFichaPDF(ficha as any, schema);
+                                        toast.success("PDF Generado", { id: toastId });
+                                    } catch(e) {
+                                        console.error(e);
+                                        toast.error("Error generando PDF", { id: toastId });
+                                    }
+                                } else {
+                                    toast.error("No hay datos para exportar");
+                                }
+                            }}
+                            disabled={!ficha || !schema}
+                        >
+                            <FileText className="mr-2 h-4 w-4" /> Exportar PDF
+                        </Button>
                         <Button type="button" variant="outline" onClick={() => navigate(-1)}>Cancelar</Button>
                         <Button type="submit">Guardar Cambios</Button>
                     </div>
@@ -150,6 +173,12 @@ export function DynamicForm() {
                                 {section.name}
                             </TabsTrigger>
                         ))}
+                        <TabsTrigger 
+                            value="auditoria" 
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border bg-background"
+                        >
+                            Auditoría
+                        </TabsTrigger>
                     </TabsList>
                     
                     {schema.sections.map((section) => {
@@ -376,6 +405,57 @@ export function DynamicForm() {
                             </Card>
                         </TabsContent>
                     )})}
+                    
+                    <TabsContent value="auditoria" className="mt-6">
+                        <Card>
+                            <CardContent className="space-y-6 pt-6">
+                                <h3 className="text-xl font-bold flex items-center gap-2">
+                                    <Info className="h-5 w-5" /> Metadatos y Auditoría ISO
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div className="flex items-start gap-3 p-4 border rounded-lg bg-slate-50">
+                                            <Smartphone className="h-5 w-5 text-muted-foreground mt-0.5" />
+                                            <div>
+                                                <p className="text-sm font-medium">Dispositivo y Versión</p>
+                                                <p className="text-sm text-slate-600">{ficha?.device_model || 'No registrado'}</p>
+                                                <p className="text-xs text-slate-400 mt-1">App v{ficha?.app_version || '?'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3 p-4 border rounded-lg bg-slate-50">
+                                            <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                                            <div>
+                                                <p className="text-sm font-medium">Cronología</p>
+                                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
+                                                    <span className="text-xs text-slate-500">Creado:</span>
+                                                    <span className="text-xs font-medium">{ficha?.created_at ? new Date(ficha.created_at).toLocaleString() : '-'}</span>
+                                                    <span className="text-xs text-slate-500">Actualizado:</span>
+                                                    <span className="text-xs font-medium">{ficha?.updated_at ? new Date(ficha.updated_at).toLocaleString() : '-'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                         <div className="flex items-start gap-3 p-4 border rounded-lg bg-slate-50 h-full">
+                                            <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                                            <div className="w-full">
+                                                <p className="text-sm font-medium mb-2">Geolocalización</p>
+                                                {ficha?.geo_location ? (
+                                                    <div className="bg-white p-2 rounded border font-mono text-xs w-full overflow-hidden">
+                                                        <pre className="whitespace-pre-wrap">
+                                                            {JSON.stringify(ficha.geo_location, null, 2)}
+                                                        </pre>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-slate-500 italic">No hay datos de ubicación</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
                 </Tabs>
             </form>
         </FormProvider>

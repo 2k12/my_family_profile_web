@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isValidCedula } from "@/lib/validation-utils";
 import { useFieldArray, useFormContext, Controller } from "react-hook-form";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
@@ -33,7 +34,7 @@ interface ArrayFieldProps {
 }
 
 export function ArrayField({ name, label, allFields, renderMode = 'table' }: ArrayFieldProps) {
-  const { control, register } = useFormContext();
+  const { control, register, formState } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name,
@@ -170,7 +171,38 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
           );
       }
 
-      // 4. Default Text
+      // 4. Custom Validation for Cedula
+      if (col === 'cedula') {
+          // Access errors safely with reactivity
+          const error = (formState.errors[name] as any)?.[index]?.[col];
+          const errorMessage = error?.message;
+
+          return (
+             <div className="relative">
+                 <Input 
+                    {...register(fieldName, { 
+                        validate: (value) => {
+                            if (!value) return true; 
+                            if (col === 'cedula' && !isValidCedula(value)) {
+                                return "Cédula incorrecta";
+                            }
+                            return true;
+                        }
+                    })} 
+                    className={cn(
+                        error ? "border-red-500 focus-visible:ring-red-500" : ""
+                    )}
+                 />
+                 {errorMessage && (
+                     <span className="absolute -bottom-4 left-0 text-[10px] text-red-500 font-medium whitespace-nowrap">
+                        {errorMessage}
+                     </span>
+                 )}
+             </div>
+          );
+      }
+
+      // 5. Default Text
       return <Input {...register(fieldName)} />;
   };
 

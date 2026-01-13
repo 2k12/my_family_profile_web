@@ -55,4 +55,10 @@ export interface Ficha {
     risk_level?: string;
     created_at: string;
     updated_at: string;
+    // ISO 8000 / Audit Fields
+    app_version?: string;
+    device_model?: string;
+    device_id?: string;
+    geo_location?: any; // JSON object
+    validation_report?: any;
 }
