@@ -81,17 +81,18 @@ export const UsersPage = () => {
 
     return (
         <div className="container mx-auto p-6 max-w-6xl">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h1>
                     <p className="text-muted-foreground">Administra el acceso y roles de los usuarios del sistema.</p>
                 </div>
-                <Button onClick={handleCreate}>
+                <Button onClick={handleCreate} className="w-full md:w-auto">
                     <Plus className="mr-2 h-4 w-4" /> Nuevo Usuario
                 </Button>
             </div>
 
-            <div className="rounded-md border">
+            {/* Desktop Table View */}
+            <div className="hidden md:block rounded-md border">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -154,6 +155,54 @@ export const UsersPage = () => {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="grid grid-cols-1 gap-4 md:hidden">
+                {loading ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm space-y-3">
+                            <Skeleton className="h-5 w-1/2" />
+                            <Skeleton className="h-4 w-3/4" />
+                             <div className="flex gap-2">
+                                <Skeleton className="h-5 w-16" />
+                                <Skeleton className="h-5 w-16" />
+                             </div>
+                        </div>
+                    ))
+                ) : (
+                    users.map((user) => (
+                        <div key={user.id} className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm flex flex-col gap-3">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <div className="font-semibold">{user.name}</div>
+                                    <div className="text-sm text-muted-foreground">{user.email}</div>
+                                </div>
+                                <div className="flex gap-1">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(user)}>
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
+                                    {user.id !== currentUser?.id && (
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggleStatus(user)}>
+                                            {user.is_active ? 
+                                                <PowerOff className="h-4 w-4 text-destructive" /> : 
+                                                <Power className="h-4 w-4 text-green-600" />
+                                            }
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex gap-2 mt-auto">
+                                <Badge variant={user.role === 'ADMIN' ? 'default' : 'secondary'}>
+                                    {user.role}
+                                </Badge>
+                                <Badge variant={user.is_active ? 'outline' : 'destructive'} className={user.is_active ? 'bg-green-50 text-green-700 border-green-200' : ''}>
+                                    {user.is_active ? 'Activo' : 'Inactivo'}
+                                </Badge>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
 
             <UserDialog 

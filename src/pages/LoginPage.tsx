@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import api from '@/lib/api';
 import { auth } from '@/lib/auth';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LayoutDashboard } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -40,22 +41,40 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
-      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto grid w-[350px] gap-6">
+    <div className="w-full min-h-screen bg-slate-50 lg:bg-background lg:grid lg:grid-cols-2">
+      {/* Mobile Banner */}
+      <div className="relative h-[35vh] w-full lg:hidden block">
+         <div className="absolute inset-0 bg-primary/90 mix-blend-multiply z-10" />
+         <img
+          src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2070&auto=format&fit=crop"
+          alt="Banner"
+          className="h-full w-full object-cover opacity-80"
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white pb-8">
+             <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                 <LayoutDashboard className="h-8 w-8 text-white" />
+             </div>
+             <h2 className="text-2xl font-bold tracking-tight">Mi Perfil Familiar</h2>
+             <p className="text-sm opacity-80 font-medium">Gestión Integral</p>
+        </div>
+      </div>
+
+      <div className="flex items-start lg:items-center justify-center px-4 -mt-12 lg:mt-0 relative z-20 pb-12">
+        <Card className="w-full max-w-[400px] shadow-xl border-none lg:shadow-none lg:border-none bg-white/95 backdrop-blur-sm lg:bg-transparent">
+        <CardContent className="p-6 sm:p-8 grid gap-6">
           <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold">Bienvenido</h1>
-            <p className="text-balance text-muted-foreground">
-              Ingresa tu correo electrónico para acceder al sistema
+            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Bienvenido</h1>
+            <p className="text-sm text-balance text-muted-foreground">
+              Ingresa tus credenciales para continuar
             </p>
           </div>
           <form onSubmit={handleLogin} className="grid gap-4">
-            <div className="grid gap-2">
+            <div className="grid gap-2 text-left">
               <Label htmlFor="email">Correo Electrónico</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="nombre@ejemplo.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -86,13 +105,17 @@ export const LoginPage = () => {
               {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </Button>
           </form>
-          <div className="text-center text-sm text-muted-foreground">
-             <p>Credenciales Demo:</p>
-             <p className="font-mono text-xs mt-1">prueba@example.com / 123456789</p>
-             <p className="font-mono text-xs mt-1">admin@example.com / 123456789</p>
-          </div>
-        </div>
+          
+          {/* 
+          <div className="bg-muted/50 p-4 rounded-lg border text-center text-sm">
+             ... credentials ...
+          </div> 
+          */}
+        </CardContent>
+        </Card>
       </div>
+      
+      {/* Desktop Image Section */}
       <div className="hidden bg-muted lg:block relative overflow-hidden">
         <div className="absolute inset-0 bg-zinc-900/20 z-10" />
         <img

@@ -72,54 +72,59 @@ export const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-[425px] rounded-lg mx-auto p-4 md:p-6">
                 <DialogHeader>
                     <DialogTitle>{user ? 'Editar Usuario' : 'Nuevo Usuario'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">Nombre</Label>
-                        <Input id="name" className="col-span-3" {...register('name', { required: true })} />
+                    <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                        <Label htmlFor="name" className="md:text-right">Nombre</Label>
+                        <Input id="name" className="col-span-1 md:col-span-3" {...register('name', { required: true })} />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="email" className="text-right">Email</Label>
-                        <Input id="email" type="email" className="col-span-3" {...register('email', { required: true })} />
+                    <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                        <Label htmlFor="email" className="md:text-right">Email</Label>
+                        <Input id="email" type="email" className="col-span-1 md:col-span-3" {...register('email', { required: true })} />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="password" className="text-right">Password</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                        <Label htmlFor="password" className="md:text-right">Password</Label>
                         <Input 
                             id="password" 
                             type="password" 
-                            className="col-span-3" 
+                            className="col-span-1 md:col-span-3" 
                             placeholder={user ? "(Sin cambios)" : ""}
                             {...register('password', { required: !user })} 
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="role" className="text-right">Rol</Label>
-                        <Select onValueChange={(val) => setValue('role', val as any)} value={role}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Selecciona un rol" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="ADMIN">Administrador</SelectItem>
-                                <SelectItem value="USUARIO">Usuario</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                        <Label htmlFor="role" className="md:text-right">Rol</Label>
+                        <div className="col-span-1 md:col-span-3">
+                            <Select onValueChange={(val) => setValue('role', val as any)} value={role}>
+                                <SelectTrigger className="w-full md:w-[180px]">
+                                    <SelectValue placeholder="Selecciona un rol" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ADMIN">Administrador</SelectItem>
+                                    <SelectItem value="USUARIO">Usuario</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="is_active" className="text-right">Activo</Label>
+                     <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                        <Label htmlFor="is_active" className="md:text-right">Activo</Label>
                          <Switch 
                             checked={isActive}
                             onCheckedChange={(val) => setValue('is_active', val)}
                         />
                     </div>
                     
-                    <DialogFooter>
-                        <Button type="submit" disabled={isSubmitting}>
+                    <div className="flex flex-row gap-2 justify-end mt-4">
+                        <Button type="button" variant="ghost" size="sm" onClick={() => onOpenChange(false)} className="flex-1 sm:flex-none">
+                            Cancelar
+                        </Button>
+                        <Button type="submit" size="sm" disabled={isSubmitting} className="flex-1 sm:flex-none">
                             {isSubmitting ? 'Guardando...' : 'Guardar'}
                         </Button>
-                    </DialogFooter>
+                    </div>
                 </form>
             </DialogContent>
         </Dialog>

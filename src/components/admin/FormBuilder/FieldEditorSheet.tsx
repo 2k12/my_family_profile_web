@@ -42,26 +42,28 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
   const fieldType = watch('type');
 
   useEffect(() => {
-    if (field) {
-      reset(field);
-      // Ensure options is array
-      if (typeof field.options === 'string') {
-          // Attempt parse if JSON string or ignore?
-          // For now assuming existing options structure is mostly compliant or ignore string content for UI list
-          setOptions([]);
-      } else {
-          setOptions(field.options || []);
-      }
-    } else {
-      reset({
-        name: '',
-        label: '',
-        type: 'text',
-        required: false,
-        section_id: sectionId,
-        order_index: 999
-      });
-      setOptions([]);
+    if (open) {
+        if (field) {
+            reset(field);
+            // Ensure options is array
+            if (typeof field.options === 'string') {
+                setOptions([]);
+            } else {
+                setOptions(field.options || []);
+            }
+        } else {
+            reset({
+                name: '',
+                label: '',
+                type: 'text',
+                required: false,
+                section_id: sectionId,
+                order_index: 999,
+                options: [],
+                dynamic_source: 'static'
+            });
+            setOptions([]);
+        }
     }
   }, [field, open, sectionId, reset]);
 
@@ -88,7 +90,7 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-md">
+      <SheetContent className="overflow-y-auto w-[90%] sm:w-full sm:max-w-lg px-4 sm:px-6">
         <SheetHeader>
           <SheetTitle>{field ? 'Editar Campo' : 'Nuevo Campo'}</SheetTitle>
           <SheetDescription>

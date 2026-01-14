@@ -64,12 +64,17 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ sections, onRefr
         {sections.map((section) => (
           <AccordionItem key={section.id} value={`section-${section.id}`} className="border rounded-lg bg-card px-4">
              <AccordionTrigger className="hover:no-underline">
-                 <div className="flex items-center justify-between w-full mr-4">
-                    <span className="text-lg font-semibold flex items-center gap-2">
-                        {section.name}
-                        {section.is_template && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">Plantilla</span>}
-                    </span>
-                    <div className="flex items-center gap-2">
+                 <div className="flex items-center justify-between w-full mr-4 overflow-hidden">
+                    <div className="flex flex-col gap-1 flex-1 mr-2 min-w-0">
+                        <span className="text-lg font-semibold leading-tight text-left break-words whitespace-normal">
+                            {section.name}
+                        </span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                             {section.is_template && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded leading-none shrink-0">Plantilla</span>}
+                             <span className="text-xs text-muted-foreground whitespace-nowrap">({section.fields.length} campos)</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center flex-shrink-0">
                          <Button 
                             variant="ghost" 
                             size="icon" 
@@ -81,7 +86,6 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ sections, onRefr
                          >
                             <Edit className="h-4 w-4" />
                          </Button>
-                         <span className="text-sm text-muted-foreground mr-auto ml-4">({section.fields.length} campos)</span>
                     </div>
                  </div>
              </AccordionTrigger>
@@ -91,13 +95,33 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ sections, onRefr
                 ) : (
                   <div className="space-y-2">
                      {section.fields.map((field) => (
-                       <div key={field.id} className="flex items-center gap-3 p-3 rounded-md border bg-background hover:bg-accent/50 transition-colors group">
-                          <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
-                          <div className="flex-1">
-                             <div className="font-medium">{field.label}</div>
-                             <div className="text-xs text-muted-foreground font-mono">{field.name} • {field.type} {field.required && '• required'}</div>
+                       <div key={field.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-md border bg-background hover:bg-accent/50 transition-colors group">
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                              <GripVertical className="h-4 w-4 text-muted-foreground cursor-move flex-shrink-0" />
+                              <div className="flex-1 min-w-0 sm:hidden">
+                                  <div className="font-medium text-sm leading-tight break-words pr-2">{field.label}</div>
+                              </div>
+                              <div className="flex gap-1 sm:hidden ml-auto flex-shrink-0">
+                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditField(field)}>
+                                   <Edit className="h-4 w-4" />
+                                 </Button>
+                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => field.id && handleDeleteField(field.id)}>
+                                   <Trash2 className="h-4 w-4 text-destructive" />
+                                 </Button>
+                              </div>
                           </div>
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                          
+                          <div className="flex-1 min-w-0 hidden sm:block">
+                             <div className="font-medium truncate">{field.label}</div>
+                             <div className="text-xs text-muted-foreground font-mono truncate">{field.name} • {field.type} {field.required && '• required'}</div>
+                          </div>
+                          
+                          {/* Mobile details below */}
+                          <div className="text-xs text-muted-foreground font-mono sm:hidden pl-6 break-all">
+                              {field.name} • {field.type} {field.required && '• required'}
+                          </div>
+
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex gap-1">
                              <Button variant="ghost" size="icon" onClick={() => handleEditField(field)}>
                                <Edit className="h-4 w-4" />
                              </Button>

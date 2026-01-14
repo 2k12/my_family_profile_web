@@ -77,16 +77,16 @@ export function FormsListPage() {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Formularios</h1>
           <p className="text-muted-foreground">Administra y configura las fichas de datos.</p>
         </div>
-        <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/admin/iso8000')}>
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <Button variant="outline" onClick={() => navigate('/admin/iso8000')} className="w-full sm:w-auto">
                 <FileText className="mr-2 h-4 w-4" /> ISO 8000
             </Button>
-            <Button onClick={() => setIsCreateOpen(true)}>
+            <Button onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" /> Nuevo Formulario
             </Button>
         </div>
@@ -129,7 +129,7 @@ export function FormsListPage() {
       )}
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
+        <DialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-[425px] rounded-lg mx-auto p-4 md:p-6">
           <DialogHeader>
             <DialogTitle>Crear Nuevo Formulario</DialogTitle>
             <DialogDescription>
@@ -167,14 +167,14 @@ export function FormsListPage() {
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button type="button" variant="secondary" onClick={() => setIsCreateOpen(false)}>
+            <div className="flex flex-row gap-2 justify-end mt-4">
+              <Button type="button" variant="ghost" size="sm" onClick={() => setIsCreateOpen(false)} className="flex-1 sm:flex-none">
                 Cancelar
               </Button>
-              <Button type="submit" disabled={creating}>
+              <Button type="submit" size="sm" disabled={creating} className="flex-1 sm:flex-none">
                 {creating ? "Creando..." : "Crear"}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </DialogContent>
       </Dialog>

@@ -11,13 +11,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LayoutDashboard, FileText, User as UserIcon, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, User as UserIcon, LogOut, Menu } from 'lucide-react';
 
 export const AppLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [user, setUser] = useState<User | null>(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         if (!auth.isAuthenticated()) {
@@ -47,18 +53,51 @@ export const AppLayout = () => {
         { label: 'BI Analytics', path: '/bi', icon: LayoutDashboard },
     ];
 
+    const filteredNavItems = navItems.filter(item => {
+        if ((item.label === 'Gestión Fichas' || item.label === 'Gestión Usuarios') && user.role !== 'ADMIN') return false;
+        return true;
+    });
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <header className="border-b">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-8">
-                        <div className="font-bold text-xl">Mi Perfil Familiar</div>
+                    <div className="flex items-center gap-4 md:gap-8">
+                        {/* Mobile Menu Trigger */}
+                        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon" className="md:hidden">
+                                    <Menu className="h-5 w-5" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+                                <div className="flex flex-col gap-6 mt-6">
+                                    <div className="font-bold text-xl px-2">Mi Perfil Familiar</div>
+                                    <nav className="flex flex-col gap-2">
+                                        {filteredNavItems.map((item) => {
+                                            const Icon = item.icon;
+                                            const isActive = location.pathname.startsWith(item.path);
+                                            return (
+                                                <Link 
+                                                    key={item.path} 
+                                                    to={item.path}
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                    className={`flex items-center gap-2 p-2 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground ${isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
+                                                >
+                                                    <Icon className="h-4 w-4" />
+                                                    {item.label}
+                                                </Link>
+                                            );
+                                        })}
+                                    </nav>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+
+                        <div className="font-bold text-lg md:text-xl whitespace-nowrap overflow-hidden text-ellipsis">Mi Perfil Familiar</div>
                         
                         <nav className="hidden md:flex items-center gap-6">
-                            {navItems.filter(item => {
-                                if ((item.label === 'Gestión Fichas' || item.label === 'Gestión Usuarios') && user.role !== 'ADMIN') return false;
-                                return true;
-                            }).map((item) => {
+                            {filteredNavItems.map((item) => {
                                 const Icon = item.icon;
                                 const isActive = location.pathname.startsWith(item.path);
                                 return (
@@ -88,8 +127,8 @@ export const AppLayout = () => {
                             <DropdownMenuContent className="w-56" align="end" forceMount>
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium leading-none">{user.name}</p>
-                                        <p className="text-xs leading-none text-muted-foreground">
+                                        <p className="text-sm font-medium leading-none truncate">{user.name}</p>
+                                        <p className="text-xs leading-none text-muted-foreground truncate">
                                             {user.email}
                                         </p>
                                     </div>

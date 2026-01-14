@@ -177,26 +177,26 @@ export const FormBuilderLayout = () => {
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-5xl min-h-screen bg-background text-foreground">
+        <div className="container mx-auto p-6 max-w-5xl bg-background text-foreground">
             <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-4">
                     <Button variant="ghost" size="icon" onClick={() => navigate('/admin/forms')}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <div className="flex items-center gap-2">
-                             <h1 className="text-2xl font-bold tracking-tight">Editor: {form?.name}</h1>
-                             <span className="text-xs bg-secondary px-2 py-1 rounded-full text-secondary-foreground">v{form?.version}</span>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                             <h1 className="text-2xl font-bold tracking-tight line-clamp-1">{form?.name}</h1>
+                             <span className="text-xs bg-secondary px-2 py-1 rounded-full text-secondary-foreground w-fit">v{form?.version}</span>
                         </div>
-                        {form && <p className="text-muted-foreground">{form.description || 'Sin descripción'}</p>}
+                        {form && <p className="text-muted-foreground line-clamp-2">{form.description || 'Sin descripción'}</p>}
                     </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                    <Button onClick={() => setIsEditFormOpen(true)} variant="outline" size="sm">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <Button onClick={() => setIsEditFormOpen(true)} variant="outline" size="sm" className="w-full sm:w-auto">
                         Editar Info
                     </Button>
-                    <Button onClick={loadForm} variant="outline" size="sm">
+                    <Button onClick={loadForm} variant="outline" size="sm" className="w-full sm:w-auto">
                         <RefreshCcw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Actualizar
                     </Button>
                 </div>
@@ -242,7 +242,7 @@ export const FormBuilderLayout = () => {
             
             {/* New Section Dialog */}
             <Dialog open={isNewSectionOpen} onOpenChange={setIsNewSectionOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-md rounded-lg mx-auto p-4 md:p-6">
                     <DialogHeader>
                         <DialogTitle>Nueva Sección</DialogTitle>
                         <DialogDescription>
@@ -251,22 +251,22 @@ export const FormBuilderLayout = () => {
                     </DialogHeader>
                     <form onSubmit={handleCreateSection}>
                         <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="name" className="text-right">
+                            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                                <Label htmlFor="name" className="md:text-right">
                                     Nombre
                                 </Label>
                                 <Input
                                     id="name"
                                     value={newSectionName}
                                     onChange={(e) => setNewSectionName(e.target.value)}
-                                    className="col-span-3"
+                                    className="col-span-1 md:col-span-3"
                                     placeholder="Ej: Datos Personales"
                                     autoFocus
                                 />
                             </div>
 
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <div className="col-start-2 col-span-3 flex items-center space-x-2">
+                            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                                <div className="md:col-start-2 col-span-1 md:col-span-3 flex items-center space-x-2">
                                      <input 
                                         type="checkbox"
                                         id="isTemplate"
@@ -280,20 +280,20 @@ export const FormBuilderLayout = () => {
                                 </div>
                             </div>
                         </div>
-                        <DialogFooter>
-                            <Button type="button" variant="secondary" onClick={() => setIsNewSectionOpen(false)}>
+                        <div className="flex flex-row gap-2 justify-end mt-4">
+                            <Button type="button" variant="ghost" size="sm" onClick={() => setIsNewSectionOpen(false)} className="flex-1 sm:flex-none">
                                 Cancelar
                             </Button>
-                            <Button type="submit" disabled={creatingSection || !newSectionName.trim()}>
-                                {creatingSection ? 'Creando...' : 'Crear Sección'}
+                            <Button type="submit" size="sm" disabled={creatingSection || !newSectionName.trim()} className="flex-1 sm:flex-none">
+                                {creatingSection ? 'Creando...' : 'Crear'}
                             </Button>
-                        </DialogFooter>
+                        </div>
                     </form>
                 </DialogContent>
             </Dialog>
 
             <Dialog open={isEditSectionOpen} onOpenChange={setIsEditSectionOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-md rounded-lg mx-auto p-4 md:p-6">
                     <DialogHeader>
                         <DialogTitle>Editar Sección</DialogTitle>
                         <DialogDescription>
@@ -302,20 +302,20 @@ export const FormBuilderLayout = () => {
                     </DialogHeader>
                     <form onSubmit={handleUpdateSection}>
                         <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="editSecName" className="text-right">
+                            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                                <Label htmlFor="editSecName" className="md:text-right">
                                     Nombre
                                 </Label>
                                 <Input
                                     id="editSecName"
                                     value={editSectionName}
                                     onChange={(e) => setEditSectionName(e.target.value)}
-                                    className="col-span-3"
+                                    className="col-span-1 md:col-span-3"
                                     autoFocus
                                 />
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <div className="col-start-2 col-span-3 flex items-center space-x-2">
+                            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                                <div className="md:col-start-2 col-span-1 md:col-span-3 flex items-center space-x-2">
                                      <input 
                                         type="checkbox"
                                         id="editSecIsTemplate"
@@ -329,20 +329,20 @@ export const FormBuilderLayout = () => {
                                 </div>
                             </div>
                         </div>
-                        <DialogFooter>
-                            <Button type="button" variant="secondary" onClick={() => setIsEditSectionOpen(false)}>
+                        <div className="flex flex-row gap-2 justify-end mt-4">
+                            <Button type="button" variant="ghost" size="sm" onClick={() => setIsEditSectionOpen(false)} className="flex-1 sm:flex-none">
                                 Cancelar
                             </Button>
-                            <Button type="submit" disabled={updatingSection || !editSectionName.trim()}>
-                                {updatingSection ? 'Guardando...' : 'Guardar Cambios'}
+                            <Button type="submit" size="sm" disabled={updatingSection || !editSectionName.trim()} className="flex-1 sm:flex-none">
+                                {updatingSection ? 'Guardando...' : 'Guardar'}
                             </Button>
-                        </DialogFooter>
+                        </div>
                     </form>
                 </DialogContent>
             </Dialog>
 
             <Dialog open={isEditFormOpen} onOpenChange={setIsEditFormOpen}>
-                <DialogContent>
+                <DialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-md rounded-lg mx-auto p-4 md:p-6">
                     <DialogHeader>
                         <DialogTitle>Editar Información del Formulario</DialogTitle>
                     </DialogHeader>
@@ -374,10 +374,10 @@ export const FormBuilderLayout = () => {
                                 />
                             </div>
                         </div>
-                        <DialogFooter>
-                            <Button type="button" variant="secondary" onClick={() => setIsEditFormOpen(false)}>Cancelar</Button>
-                            <Button type="submit" disabled={updatingForm}>Guardar Cambios</Button>
-                        </DialogFooter>
+                        <div className="flex flex-row gap-2 justify-end mt-4">
+                            <Button type="button" variant="ghost" size="sm" onClick={() => setIsEditFormOpen(false)} className="flex-1 sm:flex-none">Cancelar</Button>
+                            <Button type="submit" size="sm" disabled={updatingForm} className="flex-1 sm:flex-none">Guardar Cambios</Button>
+                        </div>
                     </form>
                 </DialogContent>
             </Dialog>

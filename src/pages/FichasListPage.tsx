@@ -103,15 +103,15 @@ export function FichasListPage() {
 
       {/* Bulk Actions Toolbar */}
       {selectedIds.length > 0 && (
-          <div className="bg-muted p-4 rounded-md flex items-center justify-between border animate-in fade-in slide-in-from-top-2">
+          <div className="bg-muted p-4 rounded-md flex flex-col md:flex-row items-center justify-between border animate-in fade-in slide-in-from-top-2 gap-3">
               <span className="font-medium text-sm">{selectedIds.length} seleccionados</span>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 justify-center">
                   <Button 
                     size="sm" 
                     variant="outline" 
                     onClick={() => handleBulkStatusChange('verified')}
                     disabled={isProcessing}
-                    className="gap-2"
+                    className="gap-2 w-full sm:w-auto"
                   >
                       <CheckCircle className="h-4 w-4 text-green-600" />
                       Verificar
@@ -121,7 +121,7 @@ export function FichasListPage() {
                     variant="outline" 
                     onClick={() => handleBulkStatusChange('pending')}
                     disabled={isProcessing}
-                     className="gap-2"
+                     className="gap-2 w-full sm:w-auto"
                   >
                       <Clock className="h-4 w-4 text-yellow-600" />
                       Marcar Pendiente
@@ -131,7 +131,7 @@ export function FichasListPage() {
                     variant="outline" 
                     onClick={() => handleBulkStatusChange('rejected')}
                     disabled={isProcessing}
-                     className="gap-2"
+                     className="gap-2 w-full sm:w-auto"
                   >
                         <XCircle className="h-4 w-4 text-red-600" />
                         Rechazar
@@ -140,7 +140,7 @@ export function FichasListPage() {
           </div>
       )}
 
-      <div className="border rounded-md bg-card">
+      <div className="border rounded-md bg-card hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -204,6 +204,59 @@ export function FichasListPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {fichas.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-card">
+                No se encontraron fichas.
+            </div>
+        ) : (
+            fichas.map((ficha) => (
+                <div 
+                    key={ficha.id} 
+                    className={`p-4 rounded-lg border bg-card text-card-foreground shadow-sm flex flex-col gap-3 ${selectedIds.includes(ficha.id) ? 'ring-2 ring-primary' : ''}`}
+                    onClick={() => handleSelectRow(ficha.id, !selectedIds.includes(ficha.id))}
+                >
+                    <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                             <Checkbox 
+                                checked={selectedIds.includes(ficha.id)}
+                                onCheckedChange={(checked) => handleSelectRow(ficha.id, !!checked)}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                            <div>
+                                <div className="font-semibold flex items-center gap-2">
+                                    <span className="text-sm text-muted-foreground">#{ficha.id}</span>
+                                    {ficha.nombre_familia || "Sin Nombre"}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                    Actualizado: {new Date(ficha.updated_at).toLocaleDateString()}
+                                </div>
+                            </div>
+                        </div>
+                        <Button variant="ghost" size="icon" asChild onClick={(e) => e.stopPropagation()}>
+                            <Link to={`/admin/fichas/${ficha.id}/edit`}>
+                                <Edit className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            ficha.status === 'verified' ? 'bg-green-100 text-green-800' : 
+                            ficha.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                            ficha.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                            {ficha.status === 'verified' ? 'Verificado' : 
+                             ficha.status === 'pending' ? 'Pendiente' : 
+                             ficha.status === 'rejected' ? 'Rechazado' : ficha.status}
+                        </span>
+                    </div>
+                </div>
+            ))
+        )}
       </div>
     </div>
   );

@@ -101,85 +101,88 @@ export function DynamicForm() {
     return (
         <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6 container mx-auto p-4">
-                 <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Editar Ficha: {ficha?.nombre_familia || id}</h2>
-                        <p className="text-muted-foreground">Complete la información requerida.</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Controller
-                            control={methods.control}
-                            name="status"
-                            render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Estado" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="pending">Pendiente</SelectItem>
-                                        <SelectItem value="verified">Verificado</SelectItem>
-                                        <SelectItem value="rejected">Rechazado</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            )}
-                        />
-                        <Button 
-                            type="button" 
-                            variant="secondary" 
-                            onClick={async () => {
-                                if (ficha && schema) {
-                                    const toastId = toast.loading("Generando PDF...");
-                                    try {
-                                        await generateFichaPDF(ficha as any, schema);
-                                        toast.success("PDF Generado", { id: toastId });
-                                    } catch(e) {
-                                        console.error(e);
-                                        toast.error("Error generando PDF", { id: toastId });
-                                    }
-                                } else {
-                                    toast.error("No hay datos para exportar");
-                                }
-                            }}
-                            disabled={!ficha || !schema}
-                        >
-                            <FileText className="mr-2 h-4 w-4" /> Exportar PDF
-                        </Button>
-                        <Button type="button" variant="outline" onClick={() => navigate(-1)}>Cancelar</Button>
-                        <Button type="submit">Guardar Cambios</Button>
-                    </div>
-                </div>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                     <div>
+                         <h2 className="text-2xl font-bold tracking-tight">Editar Ficha: {ficha?.nombre_familia || id}</h2>
+                         <p className="text-muted-foreground">Complete la información requerida.</p>
+                     </div>
+                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+                         <Controller
+                             control={methods.control}
+                             name="status"
+                             render={({ field }) => (
+                                 <Select onValueChange={field.onChange} value={field.value}>
+                                     <SelectTrigger className="w-full sm:w-[150px]">
+                                         <SelectValue placeholder="Estado" />
+                                     </SelectTrigger>
+                                     <SelectContent>
+                                         <SelectItem value="pending">Pendiente</SelectItem>
+                                         <SelectItem value="verified">Verificado</SelectItem>
+                                         <SelectItem value="rejected">Rechazado</SelectItem>
+                                     </SelectContent>
+                                 </Select>
+                             )}
+                         />
+                         <Button 
+                             type="button" 
+                             variant="secondary" 
+                             className="w-full sm:w-auto"
+                             onClick={async () => {
+                                 if (ficha && schema) {
+                                     const toastId = toast.loading("Generando PDF...");
+                                     try {
+                                         await generateFichaPDF(ficha as any, schema);
+                                         toast.success("PDF Generado", { id: toastId });
+                                     } catch(e) {
+                                         console.error(e);
+                                         toast.error("Error generando PDF", { id: toastId });
+                                     }
+                                 } else {
+                                     toast.error("No hay datos para exportar");
+                                 }
+                             }}
+                             disabled={!ficha || !schema}
+                         >
+                             <FileText className="mr-2 h-4 w-4" /> PDF
+                         </Button>
+                         <Button type="button" variant="outline" onClick={() => navigate(-1)} className="w-full sm:w-auto">Cancelar</Button>
+                         <Button type="submit" className="w-full sm:w-auto">Guardar</Button>
+                     </div>
+                 </div>
 
                 <div className="grid gap-4 py-4">
-                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="nombre_familia" className="text-right">
+                     <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+                        <Label htmlFor="nombre_familia" className="md:text-right">
                           Nombre Familia
                         </Label>
                         <Input
                           id="nombre_familia"
-                          className="col-span-3"
+                          className="col-span-1 md:col-span-3"
                           {...methods.register("nombre_familia", { required: true })}
                         />
                       </div>
                 </div>
 
                 <Tabs defaultValue={schema.sections[0]?.name || ''} className="w-full">
-                    <TabsList className="w-full flex-wrap justify-start h-auto gap-2 bg-transparent p-0">
-                        {schema.sections.map((section) => (
+                    <div className="w-full overflow-x-auto pb-2 -mb-2">
+                        <TabsList className="w-auto inline-flex h-auto gap-2 bg-transparent p-0">
+                            {schema.sections.map((section) => (
+                                <TabsTrigger 
+                                    key={section.id} 
+                                    value={section.name}
+                                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border bg-background whitespace-nowrap px-4 py-2 h-9"
+                                >
+                                    {section.name}
+                                </TabsTrigger>
+                            ))}
                             <TabsTrigger 
-                                key={section.id} 
-                                value={section.name}
-                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border bg-background"
+                                value="auditoria" 
+                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border bg-background whitespace-nowrap px-4 py-2 h-9"
                             >
-                                {section.name}
+                                Auditoría
                             </TabsTrigger>
-                        ))}
-                        <TabsTrigger 
-                            value="auditoria" 
-                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border bg-background"
-                        >
-                            Auditoría
-                        </TabsTrigger>
-                    </TabsList>
+                        </TabsList>
+                    </div>
                     
                     {schema.sections.map((section) => {
                         const allFields = schema.sections.flatMap(s => s.fields);
@@ -276,14 +279,14 @@ export function DynamicForm() {
 
                                                 return (
                                                     <div className="flex flex-col gap-4 mb-6">
-                                                        <div className={cn("p-6 rounded-lg shadow-sm flex items-center justify-between border", color)}>
-                                                            <div className={cn("flex flex-col", textColor)}>
+                                                        <div className={cn("p-4 md:p-6 rounded-lg shadow-sm flex flex-col items-center md:items-start md:flex-row md:justify-between border gap-4 md:gap-0 mt-4", color)}>
+                                                            <div className={cn("flex flex-col text-center md:text-left", textColor)}>
                                                                 <span className="text-sm font-semibold uppercase opacity-90">Nivel de Riesgo</span>
-                                                                <span className="text-3xl font-bold">{ficha?.risk_level || 'Pendiente de Guardar'}</span>
+                                                                <span className="text-2xl md:text-3xl font-bold">{ficha?.risk_level || 'Pendiente de Guardar'}</span>
                                                             </div>
-                                                            <div className={cn("flex flex-col items-end", textColor)}>
+                                                            <div className={cn("flex flex-col items-center md:items-end text-center md:text-right", textColor)}>
                                                                 <span className="text-sm font-semibold uppercase opacity-90">Puntaje Actual</span>
-                                                                <span className="text-5xl font-black">{score}</span>
+                                                                <span className="text-4xl md:text-5xl font-black">{score}</span>
                                                             </div>
                                                         </div>
                                                     </div>

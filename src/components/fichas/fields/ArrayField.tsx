@@ -276,39 +276,39 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
 
             {/* Modals */}
              <AlertDialog open={deleteIndex !== null} onOpenChange={(open) => !open && setDeleteIndex(null)}>
-                <AlertDialogContent>
+                <AlertDialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-md rounded-lg mx-auto p-4 md:p-6">
                     <AlertDialogHeader>
                         <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
                         <AlertDialogDescription>
                             Esta acción eliminará el registro permanentemente de la vista actual.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Eliminar</AlertDialogAction>
-                    </AlertDialogFooter>
+                    <div className="flex flex-row gap-2 justify-end mt-4">
+                        <AlertDialogCancel className="mt-0 flex-1 sm:flex-none">Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 flex-1 sm:flex-none">Eliminar</AlertDialogAction>
+                    </div>
                 </AlertDialogContent>
             </AlertDialog>
 
             <AlertDialog open={showAddConfirm} onOpenChange={setShowAddConfirm}>
-                <AlertDialogContent>
+                <AlertDialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-md rounded-lg mx-auto p-4 md:p-6">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Agregar Nuevo Registro</AlertDialogTitle>
                         <AlertDialogDescription>
                             ¿Desea agregar un nuevo {label}?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmAddItem}>Agregar</AlertDialogAction>
-                    </AlertDialogFooter>
+                    <div className="flex flex-row gap-2 justify-end mt-4">
+                        <AlertDialogCancel className="mt-0 flex-1 sm:flex-none">Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmAddItem} className="flex-1 sm:flex-none">Agregar</AlertDialogAction>
+                    </div>
                 </AlertDialogContent>
             </AlertDialog>
         </div>
       );
   }
 
-  // DEFAULT TABLE LAYOUT
+  // DEFAULT LAYOUT: RESPONSIVE (Cards on Mobile, Table on Desktop)
   return (
     <div className="space-y-4 border rounded-md p-4 bg-slate-50">
       <div className="flex justify-between items-center">
@@ -323,7 +323,45 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
         </Button>
       </div>
 
-      <div className="rounded-md border bg-white overflow-x-auto">
+       {/* MOBILE CARD VIEW */}
+       <div className="grid grid-cols-1 gap-4 md:hidden">
+            {fields.map((field, index) => (
+                <Card key={field.id} className="relative p-4">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 right-2 h-8 w-8 text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteItem(index)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                    
+                    <div className="flex flex-col gap-3 pt-4">
+                        {columns.map((col) => {
+                            const fieldDef = allFields.find(f => f.name === col);
+                            const labelText = fieldDef?.label || col.replace(/_/g, ' ');
+                            return (
+                                <div key={`${field.id}-${col}-mobile`} className="space-y-1">
+                                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                        {labelText}
+                                    </label>
+                                    {renderCellInput(index, col)}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </Card>
+            ))}
+            {fields.length === 0 && (
+                 <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg text-sm">
+                    No hay registros. Toque "Agregar Item" para comenzar.
+                 </div>
+            )}
+       </div>
+
+      {/* DESKTOP TABLE VIEW */}
+      <div className="rounded-md border bg-white overflow-x-auto hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -337,7 +375,7 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
             {fields.map((field, index) => (
               <TableRow key={field.id}>
                 {columns.map((col) => (
-                  <TableCell key={`${field.id}-${col}`}>
+                  <TableCell key={`${field.id}-${col}-desktop`}>
                     {renderCellInput(index, col)}
                   </TableCell>
                 ))}
@@ -364,34 +402,34 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
         </Table>
       </div>
 
-       {/* Modals for Table View */}
-       <AlertDialog open={deleteIndex !== null} onOpenChange={(open) => !open && setDeleteIndex(null)}>
-            <AlertDialogContent>
+       {/* Modals for Table View & Mobile View (Shared) */}
+        <AlertDialog open={deleteIndex !== null} onOpenChange={(open) => !open && setDeleteIndex(null)}>
+            <AlertDialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-md rounded-lg mx-auto p-4 md:p-6">
                 <AlertDialogHeader>
                     <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
                         Esta acción eliminará el registro seleccionado.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Eliminar</AlertDialogAction>
-                </AlertDialogFooter>
+                <div className="flex flex-row gap-2 justify-end mt-4">
+                    <AlertDialogCancel className="mt-0 flex-1 sm:flex-none">Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 flex-1 sm:flex-none">Eliminar</AlertDialogAction>
+                </div>
             </AlertDialogContent>
         </AlertDialog>
 
         <AlertDialog open={showAddConfirm} onOpenChange={setShowAddConfirm}>
-            <AlertDialogContent>
+            <AlertDialogContent className="w-[90%] max-w-[325px] sm:w-full sm:max-w-md rounded-lg mx-auto p-4 md:p-6">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Agregar Nuevo Registro</AlertDialogTitle>
                     <AlertDialogDescription>
-                        ¿Desea agregar un nuevo registro a la tabla?
+                        ¿Desea agregar un nuevo registro a la lista?
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={confirmAddItem}>Agregar</AlertDialogAction>
-                </AlertDialogFooter>
+                <div className="flex flex-row gap-2 justify-end mt-4">
+                    <AlertDialogCancel className="mt-0 flex-1 sm:flex-none">Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmAddItem} className="flex-1 sm:flex-none">Agregar</AlertDialogAction>
+                </div>
             </AlertDialogContent>
         </AlertDialog>
     </div>
