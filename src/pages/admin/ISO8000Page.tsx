@@ -42,7 +42,7 @@ export const ISO8000Page = () => {
     const [forms, setForms] = useState<FormSummary[]>([]);
     const [selectedFormId, setSelectedFormId] = useState<string>('');
     const [formData, setFormData] = useState<FullForm | null>(null);
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         api.get('/admin/forms').then(res => setForms(res.data)).catch(console.error);
@@ -50,17 +50,17 @@ export const ISO8000Page = () => {
 
     useEffect(() => {
         if (selectedFormId) {
-            setLoading(true);
+            // setLoading(true);
             api.get(`/admin/forms/${selectedFormId}/full`).then(res => {
                 setFormData(res.data);
             }).catch(e => {
                 console.error(e);
                 toast.error("Error cargando formulario");
-            }).finally(() => setLoading(false));
+            }) // .finally(() => setLoading(false));
         }
     }, [selectedFormId]);
 
-    const getSemanticDefinition = (field: FieldDef) => {
+    const getSemanticDefinition = (_field: FieldDef) => {
         // Since DB doesn't have description, we infer or use placeholders
         return "Campo de datos del formulario."; 
     };

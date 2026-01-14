@@ -38,7 +38,7 @@ export const FormBuilderLayout = () => {
     // New Section Dialog State
     const [isNewSectionOpen, setIsNewSectionOpen] = useState(false);
     const [newSectionName, setNewSectionName] = useState('');
-    const [newSectionOrder, setNewSectionOrder] = useState('');
+    // const [newSectionOrder, setNewSectionOrder] = useState(''); // Removed unused state
     const [newSectionIsTemplate, setNewSectionIsTemplate] = useState(false);
     const [creatingSection, setCreatingSection] = useState(false);
 

@@ -87,7 +87,7 @@ const loadImage = async (url: string): Promise<string | null> => {
     }
 };
 
-const getLabelForValue = (value: any, field?: any, allFields?: any[], extraOptions: any[] = []) => {
+const getLabelForValue = (value: any, field?: any, _allFields?: any[], extraOptions: any[] = []) => {
     if (value === null || value === undefined) return '';
     
     // Handle Objects (Prevent [object Object])
@@ -339,8 +339,8 @@ export async function generateFichaPDF(ficha: FichaData, schema?: FormStructure)
                    // --- IMPROVED CARD GRID VIEW ---
                    doc.setFontSize(9);
                    
-                   const hiddenCols = ['id'];
-                   const allKeys = Object.keys(arrayData[0]).filter(k => !hiddenCols.includes(k));
+                   // const hiddenCols = ['id'];
+                   // const allKeys = Object.keys(arrayData[0]).filter(k => !hiddenCols.includes(k)); // Unused
 
                    // --- IMPROVED CARD GRID VIEW (using autoTable for stability) ---
                    doc.setFontSize(9);
@@ -416,7 +416,7 @@ export async function generateFichaPDF(ficha: FichaData, schema?: FormStructure)
                        // E. Calculate Dynamic Height & Draw Border
                        // @ts-ignore
                        const finalCardY = doc.lastAutoTable.finalY + 2; 
-                       const totalCardHeight = finalCardY - startCardY;
+                       // const totalCardHeight = finalCardY - startCardY; // Unused
 
                        // Draw Border: REMOVED per user request
                        // doc.roundedRect(14, startCardY, pageWidth - 28, totalCardHeight, 2, 2, 'S'); // 'S' for Stroke only (transparent inside)
@@ -465,7 +465,7 @@ export async function generateFichaPDF(ficha: FichaData, schema?: FormStructure)
               }
           } else {
               // --- KEY-VALUE SECTION ---
-              const keyValStartY = yPos;
+              // const keyValStartY = yPos; // Unused
               const sectionData: [string, string][] = [];
               
               // We'll collect data first, but handle images immediately to preserve flow
