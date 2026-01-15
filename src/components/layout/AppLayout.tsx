@@ -54,8 +54,9 @@ export const AppLayout = () => {
     ];
 
     const filteredNavItems = navItems.filter(item => {
-        if ((item.label === 'Gestión Fichas' || item.label === 'Gestión Usuarios') && user.role !== 'ADMIN') return false;
-        return true;
+        if (user.role === 'ADMIN') return true;
+        // For non-admin (USUARIO), only show BI Analytics
+        return item.label === 'BI Analytics';
     });
 
     return (
