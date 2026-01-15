@@ -37,11 +37,24 @@ export function DynamicForm() {
 
     useEffect(() => {
         if (!isLoading && ficha) {
+            let status = (ficha.status || 'pending').toLowerCase();
+            // Map legacy legacy/Spanish values to English keys
+            const statusMap: Record<string, string> = {
+                'pendiente': 'pending',
+                'verificado': 'verified',
+                'rechazado': 'rejected',
+                'borrador': 'pending',
+                'completo': 'verified' 
+            };
+            if (statusMap[status]) {
+                status = statusMap[status];
+            }
+
             const formData = {
                 ...(defaultValues || {}),
                 ...(ficha.datos || {}), // Merge dynamic data from DB
                 nombre_familia: ficha.nombre_familia || '',
-                status: ficha.status || 'pending'
+                status: status
             };
             methods.reset(formData);
         }
