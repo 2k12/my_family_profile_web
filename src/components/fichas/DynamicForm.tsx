@@ -15,7 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrayField } from './fields/ArrayField';
 import { cn } from "@/lib/utils";
 import { generateFichaPDF } from "@/lib/pdf-generator";
-import { FileText, Smartphone, MapPin, Info, Calendar } from "lucide-react";
+import { FileText, Smartphone, MapPin, Info, Calendar, Trophy } from "lucide-react"; // Trophy icon
+import { DataQualityService } from '@/lib/DataQualityService';
+import { useState } from 'react';
 
 // Define the shape of the form data
 interface FichaFormData {
@@ -34,6 +36,17 @@ export function DynamicForm() {
     const methods = useForm<FichaFormData>({
         defaultValues: {}, 
     });
+
+    // ISO 8000 Data Quality State
+    const [qualityScore, setQualityScore] = useState(0);
+    const allValues = methods.watch();
+
+    useEffect(() => {
+        if (schema && allValues) {
+             const result = DataQualityService.analyze(schema, allValues);
+             setQualityScore(result.score);
+        }
+    }, [allValues, schema]);
 
     useEffect(() => {
         if (!isLoading && ficha) {
@@ -117,7 +130,29 @@ export function DynamicForm() {
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                      <div>
                          <h2 className="text-2xl font-bold tracking-tight">Editar Ficha: {ficha?.nombre_familia || id}</h2>
-                         <p className="text-muted-foreground">Complete la información requerida.</p>
+                         <p className="text-muted-foreground mb-2">Complete la información requerida.</p>
+                         
+                         {/* Data Quality Indicator */}
+                         <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded text-xs font-semibold">
+                                <Trophy className={cn("h-3.5 w-3.5", qualityScore === 100 ? "text-yellow-500" : "text-slate-400")} />
+                                <span className={cn(
+                                    qualityScore < 70 ? "text-red-600" :
+                                    qualityScore < 100 ? "text-amber-600" : "text-green-600"
+                                )}>
+                                    Calidad ISO: {qualityScore}%
+                                </span>
+                            </div>
+                            <div className="h-2 w-32 bg-slate-200 rounded-full overflow-hidden">
+                                <div 
+                                    className={cn("h-full transition-all duration-500", 
+                                        qualityScore < 70 ? "bg-red-500" :
+                                        qualityScore < 100 ? "bg-amber-500" : "bg-green-500"
+                                    )} 
+                                    style={{ width: `${qualityScore}%` }}
+                                />
+                            </div>
+                         </div>
                      </div>
                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
                          <Controller
