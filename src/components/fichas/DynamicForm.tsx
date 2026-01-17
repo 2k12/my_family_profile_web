@@ -14,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrayField } from './fields/ArrayField';
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { generateFichaPDF } from "@/lib/pdf-generator";
 import { FileText, Smartphone, MapPin, Info, Calendar, Trophy } from "lucide-react"; // Trophy icon
 import { DataQualityService } from '@/lib/DataQualityService';
@@ -39,14 +41,29 @@ export function DynamicForm() {
 
     // ISO 8000 Data Quality State
     const [qualityScore, setQualityScore] = useState(0);
+    const [qualityReport, setQualityReport] = useState<any>(null);
     const allValues = methods.watch();
+
+    // Use JSON.stringify to avoid infinite loops due to object reference changes
+    const allValuesString = JSON.stringify(allValues);
 
     useEffect(() => {
         if (schema && allValues) {
              const result = DataQualityService.analyze(schema, allValues);
-             setQualityScore(result.score);
+             setQualityScore((prev) => {
+                 if (prev !== result.score) return result.score;
+                 return prev;
+             });
+             setQualityReport((prev: any) => {
+                 // Simple check to avoid unnecessary updates if report is essentially same
+                 // Not perfect deep check but helps.
+                 // Actually, if score is same, report 'might' be same, but details could differ.
+                 // Given the loop error, referential check on allValues is the main fix.
+                 if (JSON.stringify(prev) !== JSON.stringify(result.report)) return result.report;
+                 return prev;
+             });
         }
-    }, [allValues, schema]);
+    }, [allValuesString, schema]);
 
     useEffect(() => {
         if (!isLoading && ficha) {
@@ -108,10 +125,19 @@ export function DynamicForm() {
 
     const onSubmit = async (data: any) => {
         try {
+            // Mapping: nombre_familia column comes from familia_identificador
+            // We ensure 'nombre_familia' is NOT in 'datos'
             const { nombre_familia, status, ...datos } = data;
+            
+            // If familia_identificador exists in datos, use it for the column
+            const finalNombreFamilia = datos.nombre_familia_identificador || nombre_familia; 
+
+            // Explicitly ensure 'nombre_familia' is removed from datos if it was there (destructuring handles it)
+            // And ensure we don't accidentally put it back
+            
             await api.put(`/web/fichas/${id}`, { 
                 datos: datos,
-                nombre_familia: nombre_familia,
+                nombre_familia: finalNombreFamilia,
                 status: status
             });
             toast.success('Ficha actualizada correctamente');
@@ -132,27 +158,100 @@ export function DynamicForm() {
                          <h2 className="text-2xl font-bold tracking-tight">Editar Ficha: {ficha?.nombre_familia || id}</h2>
                          <p className="text-muted-foreground mb-2">Complete la información requerida.</p>
                          
-                         {/* Data Quality Indicator */}
-                         <div className="flex items-center gap-2 mt-2">
-                            <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded text-xs font-semibold">
-                                <Trophy className={cn("h-3.5 w-3.5", qualityScore === 100 ? "text-yellow-500" : "text-slate-400")} />
-                                <span className={cn(
-                                    qualityScore < 70 ? "text-red-600" :
-                                    qualityScore < 100 ? "text-amber-600" : "text-green-600"
-                                )}>
-                                    Calidad ISO: {qualityScore}%
-                                </span>
-                            </div>
-                            <div className="h-2 w-32 bg-slate-200 rounded-full overflow-hidden">
-                                <div 
-                                    className={cn("h-full transition-all duration-500", 
-                                        qualityScore < 70 ? "bg-red-500" :
-                                        qualityScore < 100 ? "bg-amber-500" : "bg-green-500"
-                                    )} 
-                                    style={{ width: `${qualityScore}%` }}
-                                />
-                            </div>
-                         </div>
+                          {/* Data Quality Indicator */}
+                          <Dialog>
+                            <DialogTrigger asChild>
+                                 <div className="flex items-center gap-2 mt-2 cursor-pointer hover:opacity-80 transition-opacity">
+                                    <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded text-xs font-semibold">
+                                        <Trophy className={cn("h-3.5 w-3.5", qualityScore === 100 ? "text-yellow-500" : "text-slate-400")} />
+                                        <span className={cn(
+                                            qualityScore < 70 ? "text-red-600" :
+                                            qualityScore < 100 ? "text-amber-600" : "text-green-600"
+                                        )}>
+                                            Calidad ISO: {qualityScore}%
+                                        </span>
+                                    </div>
+                                    <div className="h-2 w-32 bg-slate-200 rounded-full overflow-hidden">
+                                        <div 
+                                            className={cn("h-full transition-all duration-500", 
+                                                qualityScore < 70 ? "bg-red-500" :
+                                                qualityScore < 100 ? "bg-amber-500" : "bg-green-500"
+                                            )} 
+                                            style={{ width: `${qualityScore}%` }}
+                                        />
+                                    </div>
+                                 </div>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                                <DialogHeader>
+                                    <DialogTitle>Reporte de Calidad ISO 8000-110</DialogTitle>
+                                    <DialogDescription>
+                                        Detalle del análisis de completitud y conformidad de los datos.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                
+                                {qualityReport && (
+                                    <div className="space-y-6">
+                                        {/* Metrics Summary */}
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div className="bg-slate-50 p-3 rounded-lg border text-center">
+                                                <div className="text-2xl font-bold">{qualityScore}%</div>
+                                                <div className="text-xs text-muted-foreground uppercase">Puntaje Total</div>
+                                            </div>
+                                            <div className="bg-slate-50 p-3 rounded-lg border text-center">
+                                                <div className="text-2xl font-bold">{qualityReport.total_fields}</div>
+                                                <div className="text-xs text-muted-foreground uppercase">Total Campos</div>
+                                            </div>
+                                            <div className="bg-slate-50 p-3 rounded-lg border text-center">
+                                                <div className="text-2xl font-bold text-red-600 shadow-sm">{qualityReport.missing_required}</div>
+                                                <div className="text-xs text-muted-foreground uppercase">Errores Críticos</div>
+                                            </div>
+                                            <div className="bg-slate-50 p-3 rounded-lg border text-center">
+                                                <div className="text-2xl font-bold text-green-600">{(qualityReport.metrics?.completeness_required * 100).toFixed(0)}%</div>
+                                                <div className="text-xs text-muted-foreground uppercase">Completitud Req.</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Issues Table */}
+                                        <div>
+                                            <h4 className="text-sm font-semibold mb-3">Detalle de Validaciones</h4>
+                                            {qualityReport.details && qualityReport.details.length > 0 ? (
+                                                <div className="border rounded-md">
+                                                    <Table>
+                                                        <TableHeader>
+                                                            <TableRow>
+                                                                <TableHead>Campo</TableHead>
+                                                                <TableHead>Problema</TableHead>
+                                                                <TableHead>Estado</TableHead>
+                                                            </TableRow>
+                                                        </TableHeader>
+                                                        <TableBody>
+                                                            {qualityReport.details.map((issue: any, idx: number) => (
+                                                                <TableRow key={idx}>
+                                                                    <TableCell className="font-mono text-xs">{issue.field}</TableCell>
+                                                                    <TableCell>{issue.issue}</TableCell>
+                                                                    <TableCell>
+                                                                        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80">
+                                                                            {issue.status}
+                                                                        </span>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))}
+                                                        </TableBody>
+                                                    </Table>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center p-8 border rounded-md border-dashed text-center">
+                                                    <Trophy className="h-10 w-10 text-yellow-500 mb-2" />
+                                                    <p className="font-medium">¡Excelente!</p>
+                                                    <p className="text-sm text-muted-foreground">No se encontraron problemas de calidad en los datos.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </DialogContent>
+                          </Dialog>
                      </div>
                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
                          <Controller
@@ -198,18 +297,10 @@ export function DynamicForm() {
                      </div>
                  </div>
 
-                <div className="grid gap-4 py-4">
-                     <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
-                        <Label htmlFor="nombre_familia" className="md:text-right">
-                          Nombre Familia
-                        </Label>
-                        <Input
-                          id="nombre_familia"
-                          className="col-span-1 md:col-span-3"
-                          {...methods.register("nombre_familia", { required: true })}
-                        />
-                      </div>
-                </div>
+                     <div className="md:col-span-4 pl-1">
+                         {/* Manual Nombre Familia input removed as it is now derived from familia_identificador */}
+                         {/* Display current identifier if needed or just rely on the form field */}
+                     </div>
 
                 <Tabs defaultValue={schema.sections[0]?.name || ''} className="w-full">
                     <div className="w-full overflow-x-auto pb-2 -mb-2">

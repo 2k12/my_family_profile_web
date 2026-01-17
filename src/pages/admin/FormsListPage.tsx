@@ -85,9 +85,9 @@ export function FormsListPage() {
             <Button variant="outline" onClick={() => navigate('/admin/iso8000')} className="w-full sm:w-auto">
                 <FileText className="mr-2 h-4 w-4" /> ISO 8000
             </Button>
-            <Button onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto">
+            {/* <Button onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" /> Nuevo Formulario
-            </Button>
+            </Button> */}
         </div>
       </div>
 

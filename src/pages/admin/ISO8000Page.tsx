@@ -23,6 +23,7 @@ interface FieldDef {
     required: boolean;
     dynamic_source?: string;
     options?: any[];
+    semantic_definition?: string;
 }
 
 interface SectionDef {
@@ -60,9 +61,8 @@ export const ISO8000Page = () => {
         }
     }, [selectedFormId]);
 
-    const getSemanticDefinition = (_field: FieldDef) => {
-        // Since DB doesn't have description, we infer or use placeholders
-        return "Campo de datos del formulario."; 
+    const getSemanticDefinition = (field: FieldDef) => {
+        return field.semantic_definition || "Campo de datos del formulario."; 
     };
 
     const getSyntaxRules = (field: FieldDef) => {

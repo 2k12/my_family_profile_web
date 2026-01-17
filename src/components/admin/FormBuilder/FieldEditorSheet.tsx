@@ -32,7 +32,8 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
       required: false,
       options: [],
       dynamic_source: 'static',
-      linked_section_id: undefined
+      linked_section_id: undefined,
+      semantic_definition: ''
     }
   });
   
@@ -60,7 +61,8 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
                 section_id: sectionId,
                 order_index: 999,
                 options: [],
-                dynamic_source: 'static'
+                dynamic_source: 'static',
+                semantic_definition: ''
             });
             setOptions([]);
         }
@@ -107,6 +109,11 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
           <div className="space-y-2">
             <Label htmlFor="name">Nombre interno (snake_case)</Label>
             <Input id="name" {...register('name', { required: true })} placeholder="Ej: nombres_completos" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="semantic_definition">Definición Semántica</Label>
+            <Input id="semantic_definition" {...register('semantic_definition')} placeholder="Ej: Este campo captura los nombres del usuario" />
           </div>
 
           <div className="space-y-2">

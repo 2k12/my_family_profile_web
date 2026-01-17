@@ -77,8 +77,8 @@ export class DataQualityService {
                 if (isRequired && !filled) {
                     fieldReports.push({
                         field: fieldName,
-                        issue: 'Missing Required Field',
-                        status: 'FAIL'
+                        issue: 'Campo Requerido Faltante',
+                        status: 'FALLO'
                     });
                 }
             });

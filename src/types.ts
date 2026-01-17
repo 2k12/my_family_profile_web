@@ -16,6 +16,7 @@ export interface Field {
   options?: FieldOption[] | string;
   dynamic_source?: string;
   linked_section_id?: number;
+  semantic_definition?: string;
 }
 
 export interface Section {
