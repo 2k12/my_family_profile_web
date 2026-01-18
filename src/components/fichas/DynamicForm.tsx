@@ -2,8 +2,7 @@ import { useEffect } from 'react';
 import { useForm, FormProvider, Controller } from 'react-hook-form'; // Added Controller
 import { useFormSchema } from '@/hooks/useFormSchema';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FieldSwitch } from './FieldSwitch';
 import { Card, CardContent } from '@/components/ui/card';
