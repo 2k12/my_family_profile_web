@@ -1,13 +1,23 @@
 
 
 export const BiDashboard = () => {
+    const dashboardUrl = import.meta.env.VITE_BI_DASHBOARD_URL;
+
     return (
-        <div className="p-8">
-            {/* <h1 className="text-3xl font-bold mb-4">Business Intelligence Dashboard</h1>
-            <p className="text-muted-foreground">Aquí se visualizarán los reportes y estadísticas.</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                
-            </div> */}
+        <div className="flex flex-col h-[calc(100vh-4rem)]">
+            <div className="p-4 border-b bg-background">
+                <h1 className="text-2xl font-bold">Business Intelligence Dashboard</h1>
+            </div>
+            <div className="flex-1 bg-muted/20 p-4">
+                <div className="w-full h-full rounded-lg overflow-hidden border bg-background shadow-sm">
+                    <iframe 
+                        src={dashboardUrl} 
+                        title="BI Dashboard"
+                        className="w-full h-full border-0"
+                        allowFullScreen
+                    />
+                </div>
+            </div>
         </div>
     );
 };
