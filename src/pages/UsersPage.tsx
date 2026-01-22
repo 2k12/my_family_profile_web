@@ -136,12 +136,22 @@ export const UsersPage = () => {
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <Button variant="ghost" size="icon" onClick={() => handleEdit(user)}>
+                                        <div className="flex items-center -space-x-px">
+                                            <Button 
+                                                variant="outline" 
+                                                size="icon" 
+                                                className={`h-8 w-8 rounded-r-none focus:z-10 ${user.id === currentUser?.id ? 'rounded-md' : ''}`}
+                                                onClick={() => handleEdit(user)}
+                                            >
                                                 <Edit className="h-4 w-4" />
                                             </Button>
                                             {user.id !== currentUser?.id && (
-                                                <Button variant="ghost" size="icon" onClick={() => handleToggleStatus(user)}>
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="icon" 
+                                                    className="h-8 w-8 rounded-l-none border-l-0 focus:z-10" 
+                                                    onClick={() => handleToggleStatus(user)}
+                                                >
                                                     {user.is_active ? 
                                                         <PowerOff className="h-4 w-4 text-destructive" /> : 
                                                         <Power className="h-4 w-4 text-green-600" />
@@ -178,12 +188,22 @@ export const UsersPage = () => {
                                     <div className="font-semibold">{user.name}</div>
                                     <div className="text-sm text-muted-foreground">{user.email}</div>
                                 </div>
-                                <div className="flex gap-1">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(user)}>
+                                <div className="flex items-center -space-x-px">
+                                    <Button 
+                                        variant="outline" 
+                                        size="icon" 
+                                        className={`h-8 w-8 rounded-r-none focus:z-10 ${user.id === currentUser?.id ? 'rounded-md' : ''}`}
+                                        onClick={() => handleEdit(user)}
+                                    >
                                         <Edit className="h-4 w-4" />
                                     </Button>
                                     {user.id !== currentUser?.id && (
-                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggleStatus(user)}>
+                                        <Button 
+                                            variant="outline" 
+                                            size="icon" 
+                                            className="h-8 w-8 rounded-l-none border-l-0 focus:z-10" 
+                                            onClick={() => handleToggleStatus(user)}
+                                        >
                                             {user.is_active ? 
                                                 <PowerOff className="h-4 w-4 text-destructive" /> : 
                                                 <Power className="h-4 w-4 text-green-600" />

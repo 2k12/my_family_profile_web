@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useForm, FormProvider, Controller } from 'react-hook-form'; // Added Controller
+import { useEffect, useState } from 'react';
+import { useForm, FormProvider, Controller } from 'react-hook-form'; 
 import { useFormSchema } from '@/hooks/useFormSchema';
 import { Button } from '@/components/ui/button';
 
@@ -16,9 +16,8 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { generateFichaPDF } from "@/lib/pdf-generator";
-import { FileText, Smartphone, MapPin, Info, Calendar, Trophy } from "lucide-react"; // Trophy icon
+import { FileText, Smartphone, MapPin, Info, Calendar, Trophy, CheckCircle2, AlertTriangle, XOctagon, ClipboardList, Activity } from "lucide-react"; 
 import { DataQualityService } from '@/lib/DataQualityService';
-import { useState } from 'react';
 
 // Define the shape of the form data
 interface FichaFormData {
@@ -54,10 +53,6 @@ export function DynamicForm() {
                  return prev;
              });
              setQualityReport((prev: any) => {
-                 // Simple check to avoid unnecessary updates if report is essentially same
-                 // Not perfect deep check but helps.
-                 // Actually, if score is same, report 'might' be same, but details could differ.
-                 // Given the loop error, referential check on allValues is the main fix.
                  if (JSON.stringify(prev) !== JSON.stringify(result.report)) return result.report;
                  return prev;
              });
@@ -66,17 +61,29 @@ export function DynamicForm() {
 
     useEffect(() => {
         if (!isLoading && ficha) {
-            let status = (ficha.status || 'pending').toLowerCase();
-            // Map legacy legacy/Spanish values to English keys
+            let rawStatus = (ficha.status || 'pending');
+            // Normalize: to string, lowercase, and trim whitespace
+            let status = String(rawStatus).toLowerCase().trim();
+            
+            // Map legacy/Spanish values to English keys
             const statusMap: Record<string, string> = {
                 'pendiente': 'pending',
                 'verificado': 'verified',
                 'rechazado': 'rejected',
                 'borrador': 'pending',
-                'completo': 'verified' 
+                'completo': 'verified',
+                // Identity mapping for safety
+                'pending': 'pending',
+                'verified': 'verified',
+                'rejected': 'rejected'
             };
+            
             if (statusMap[status]) {
                 status = statusMap[status];
+            } else {
+                // If the status is unknown (e.g. "Draft"), default to pending to avoid empty dropdown
+                console.warn(`Unknown status "${rawStatus}" normalized to "${status}". Defaulting to "pending".`);
+                status = 'pending';
             }
 
             const formData = {
@@ -160,19 +167,19 @@ export function DynamicForm() {
                           {/* Data Quality Indicator */}
                           <Dialog>
                             <DialogTrigger asChild>
-                                 <div className="flex items-center gap-2 mt-2 cursor-pointer hover:opacity-80 transition-opacity">
-                                    <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded text-xs font-semibold">
-                                        <Trophy className={cn("h-3.5 w-3.5", qualityScore === 100 ? "text-yellow-500" : "text-slate-400")} />
-                                        <span className={cn(
-                                            qualityScore < 70 ? "text-red-600" :
-                                            qualityScore < 100 ? "text-amber-600" : "text-green-600"
-                                        )}>
-                                            Calidad ISO: {qualityScore}%
-                                        </span>
+                                 <div className="flex items-center gap-2 mt-2 cursor-pointer group">
+                                    <div className={cn(
+                                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all shadow-sm",
+                                        qualityScore === 100 ? "bg-green-50 text-green-700 border-green-200 group-hover:bg-green-100" :
+                                        qualityScore >= 70 ? "bg-amber-50 text-amber-700 border-amber-200 group-hover:bg-amber-100" :
+                                        "bg-red-50 text-red-700 border-red-200 group-hover:bg-red-100"
+                                    )}>
+                                        <Activity className="h-3.5 w-3.5" />
+                                        <span>Calidad ISO: {qualityScore}%</span>
                                     </div>
-                                    <div className="h-2 w-32 bg-slate-200 rounded-full overflow-hidden">
+                                    <div className="hidden sm:block h-2 w-24 bg-slate-100 rounded-full overflow-hidden border">
                                         <div 
-                                            className={cn("h-full transition-all duration-500", 
+                                            className={cn("h-full transition-all duration-1000 ease-out", 
                                                 qualityScore < 70 ? "bg-red-500" :
                                                 qualityScore < 100 ? "bg-amber-500" : "bg-green-500"
                                             )} 
@@ -181,74 +188,131 @@ export function DynamicForm() {
                                     </div>
                                  </div>
                             </DialogTrigger>
-                            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-                                <DialogHeader>
-                                    <DialogTitle>Reporte de Calidad ISO 8000-110</DialogTitle>
-                                    <DialogDescription>
-                                        Detalle del análisis de completitud y conformidad de los datos.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                
-                                {qualityReport && (
-                                    <div className="space-y-6">
-                                        {/* Metrics Summary */}
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                            <div className="bg-slate-50 p-3 rounded-lg border text-center">
-                                                <div className="text-2xl font-bold">{qualityScore}%</div>
-                                                <div className="text-xs text-muted-foreground uppercase">Puntaje Total</div>
-                                            </div>
-                                            <div className="bg-slate-50 p-3 rounded-lg border text-center">
-                                                <div className="text-2xl font-bold">{qualityReport.total_fields}</div>
-                                                <div className="text-xs text-muted-foreground uppercase">Total Campos</div>
-                                            </div>
-                                            <div className="bg-slate-50 p-3 rounded-lg border text-center">
-                                                <div className="text-2xl font-bold text-red-600 shadow-sm">{qualityReport.missing_required}</div>
-                                                <div className="text-xs text-muted-foreground uppercase">Errores Críticos</div>
-                                            </div>
-                                            <div className="bg-slate-50 p-3 rounded-lg border text-center">
-                                                <div className="text-2xl font-bold text-green-600">{(qualityReport.metrics?.completeness_required * 100).toFixed(0)}%</div>
-                                                <div className="text-xs text-muted-foreground uppercase">Completitud Req.</div>
-                                            </div>
-                                        </div>
-
-                                        {/* Issues Table */}
-                                        <div>
-                                            <h4 className="text-sm font-semibold mb-3">Detalle de Validaciones</h4>
-                                            {qualityReport.details && qualityReport.details.length > 0 ? (
-                                                <div className="border rounded-md">
-                                                    <Table>
-                                                        <TableHeader>
-                                                            <TableRow>
-                                                                <TableHead>Campo</TableHead>
-                                                                <TableHead>Problema</TableHead>
-                                                                <TableHead>Estado</TableHead>
-                                                            </TableRow>
-                                                        </TableHeader>
-                                                        <TableBody>
-                                                            {qualityReport.details.map((issue: any, idx: number) => (
-                                                                <TableRow key={idx}>
-                                                                    <TableCell className="font-mono text-xs">{issue.field}</TableCell>
-                                                                    <TableCell>{issue.issue}</TableCell>
-                                                                    <TableCell>
-                                                                        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80">
-                                                                            {issue.status}
-                                                                        </span>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            ))}
-                                                        </TableBody>
-                                                    </Table>
-                                                </div>
-                                            ) : (
-                                                <div className="flex flex-col items-center justify-center p-8 border rounded-md border-dashed text-center">
-                                                    <Trophy className="h-10 w-10 text-yellow-500 mb-2" />
-                                                    <p className="font-medium">¡Excelente!</p>
-                                                    <p className="text-sm text-muted-foreground">No se encontraron problemas de calidad en los datos.</p>
-                                                </div>
-                                            )}
-                                        </div>
+                            <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
+                                <div className={cn(
+                                    "p-6 border-b flex items-start justify-between bg-muted/30",
+                                    qualityScore === 100 ? "bg-green-50/50" : qualityScore < 70 ? "bg-red-50/50" : "bg-amber-50/50"
+                                )}>
+                                    <div>
+                                        <DialogHeader className="p-0 space-y-1">
+                                            <DialogTitle className="text-xl flex items-center gap-2">
+                                                <Trophy className={cn("h-5 w-5", qualityScore === 100 ? "text-yellow-600" : "text-slate-500")} />
+                                                Reporte de Calidad ISO 8000
+                                            </DialogTitle>
+                                            <DialogDescription className="text-base text-muted-foreground">
+                                                Análisis de conformidad, sintaxis y completitud de datos.
+                                            </DialogDescription>
+                                        </DialogHeader>
                                     </div>
-                                )}
+                                </div>
+                                
+                                <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-slate-50/30">
+                                    {qualityReport && (
+                                        <>
+                                            {/* Metrics Cards */}
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                <Card className="shadow-sm border-slate-200">
+                                                    <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+                                                        <div className="p-2 bg-slate-100 rounded-full"><ClipboardList className="h-5 w-5 text-slate-600" /></div>
+                                                        <div>
+                                                            <div className="text-2xl font-bold tracking-tight">{qualityReport.total_fields}</div>
+                                                            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Campos</div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                                
+                                                <Card className="shadow-sm border-red-100 bg-red-50/30">
+                                                    <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+                                                        <div className="p-2 bg-red-100 rounded-full"><XOctagon className="h-5 w-5 text-red-600" /></div>
+                                                        <div>
+                                                            <div className="text-2xl font-bold tracking-tight text-red-700">{qualityReport.missing_required}</div>
+                                                            <div className="text-[10px] font-semibold text-red-600/80 uppercase tracking-wider">Errores Críticos</div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+
+                                                <Card className="shadow-sm border-amber-100 bg-amber-50/30">
+                                                    <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+                                                        <div className="p-2 bg-amber-100 rounded-full"><AlertTriangle className="h-5 w-5 text-amber-600" /></div>
+                                                        <div>
+                                                            <div className="text-2xl font-bold tracking-tight text-amber-700">
+                                                                {/* Example calculation for warnings if available or just placeholders */}
+                                                                {(qualityReport.details?.length || 0) - qualityReport.missing_required}
+                                                            </div>
+                                                            <div className="text-[10px] font-semibold text-amber-600/80 uppercase tracking-wider">Advertencias</div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+
+                                                <Card className="shadow-sm border-blue-100 bg-blue-50/30">
+                                                    <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+                                                        <div className="p-2 bg-blue-100 rounded-full"><Activity className="h-5 w-5 text-blue-600" /></div>
+                                                        <div>
+                                                            <div className="text-2xl font-bold tracking-tight text-blue-700">{(qualityReport.metrics?.completeness_required * 100).toFixed(0)}%</div>
+                                                            <div className="text-[10px] font-semibold text-blue-600/80 uppercase tracking-wider">Completitud</div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+
+                                            {/* Detailed Issues */}
+                                            <div className="space-y-4">
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="text-base font-semibold flex items-center gap-2">
+                                                        <Info className="h-4 w-4 text-muted-foreground" />
+                                                        Detalle de Hallazgos
+                                                    </h4>
+                                                </div>
+
+                                                {qualityReport.details && qualityReport.details.length > 0 ? (
+                                                    <div className="border rounded-lg bg-white overflow-hidden shadow-sm">
+                                                        <Table>
+                                                            <TableHeader className="bg-slate-50">
+                                                                <TableRow>
+                                                                    <TableHead className="w-[180px] font-semibold">Campo</TableHead>
+                                                                    <TableHead className="font-semibold">Problema Detectado</TableHead>
+                                                                    <TableHead className="w-[120px] font-semibold text-right">Impacto</TableHead>
+                                                                </TableRow>
+                                                            </TableHeader>
+                                                            <TableBody>
+                                                                {qualityReport.details.map((issue: any, idx: number) => (
+                                                                    <TableRow key={idx} className="hover:bg-slate-50/50">
+                                                                        <TableCell className="font-mono text-xs font-medium text-slate-600">
+                                                                            {issue.field}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-sm">
+                                                                           {issue.issue}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-right">
+                                                                            <span className={cn(
+                                                                                "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                                                                                issue.status === 'CRITICAL' ? "bg-red-50 text-red-700 ring-red-600/10" : 
+                                                                                issue.status === 'WARNING' ? "bg-amber-50 text-amber-700 ring-amber-600/10" :
+                                                                                "bg-slate-50 text-slate-700 ring-slate-600/10"
+                                                                            )}>
+                                                                                {issue.status}
+                                                                            </span>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                ))}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed rounded-xl bg-white text-center animate-in fade-in zoom-in-95 duration-500">
+                                                        <div className="p-4 bg-green-50 rounded-full mb-4">
+                                                            <CheckCircle2 className="h-10 w-10 text-green-500" />
+                                                        </div>
+                                                        <h3 className="text-lg font-bold text-green-900 mb-1">¡Datos de Alta Calidad!</h3>
+                                                        <p className="text-base text-muted-foreground max-w-sm">
+                                                            No se encontraron errores de sintaxis ni campos obligatorios faltantes. El registro cumple con ISO 8000.
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </DialogContent>
                           </Dialog>
                      </div>

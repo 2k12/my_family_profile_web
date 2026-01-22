@@ -144,6 +144,10 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        locale={es}
                         initialFocus
                       />
                     </PopoverContent>

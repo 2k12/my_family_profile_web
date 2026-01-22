@@ -137,64 +137,65 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
             </select>
           </div>
 
-          {/* Dynamic Source Configuration */}
-          <div className="space-y-4 rounded-md border p-4 bg-muted/10">
-              <Label className="font-semibold">Fuente de Datos (Dynamic Source)</Label>
-              
-              <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                       <input 
-                          type="radio" 
-                          id="ds_static" 
-                          name="ds_type" 
-                          checked={!watch('dynamic_source') || watch('dynamic_source') === 'static' || !watch('dynamic_source')?.startsWith('range:')}
-                          onChange={() => setValue('dynamic_source', 'static')}
-                          className="h-4 w-4"
-                       />
-                       <Label htmlFor="ds_static" className="font-normal">Estático</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                       <input 
-                          type="radio" 
-                          id="ds_range" 
-                          name="ds_type" 
-                          checked={watch('dynamic_source')?.startsWith('range:') || false}
-                          onChange={() => setValue('dynamic_source', 'range:0-10')}
-                          className="h-4 w-4"
-                       />
-                       <Label htmlFor="ds_range" className="font-normal">Rango Numérico</Label>
-                  </div>
-              </div>
+          {isOptionType && (
+            <div className="space-y-4 rounded-md border p-4 bg-muted/10">
+                <Label className="font-semibold">Fuente de Datos (Dynamic Source)</Label>
+                
+                <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                         <input 
+                            type="radio" 
+                            id="ds_static" 
+                            name="ds_type" 
+                            checked={!watch('dynamic_source') || watch('dynamic_source') === 'static' || !watch('dynamic_source')?.startsWith('range:')}
+                            onChange={() => setValue('dynamic_source', 'static')}
+                            className="h-4 w-4"
+                         />
+                         <Label htmlFor="ds_static" className="font-normal">Estático</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                         <input 
+                            type="radio" 
+                            id="ds_range" 
+                            name="ds_type" 
+                            checked={watch('dynamic_source')?.startsWith('range:') || false}
+                            onChange={() => setValue('dynamic_source', 'range:0-10')}
+                            className="h-4 w-4"
+                         />
+                         <Label htmlFor="ds_range" className="font-normal">Rango Numérico</Label>
+                    </div>
+                </div>
 
-               {watch('dynamic_source')?.startsWith('range:') && (
-                 <div className="grid grid-cols-2 gap-4 mt-2">
-                    <div className="space-y-1">
-                        <Label className="text-xs">Mínimo</Label>
-                        <Input 
-                            type="number"
-                            placeholder="0"
-                            value={watch('dynamic_source')?.split(':')[1]?.split('-')[0] || '0'}
-                            onChange={(e) => {
-                                const currentMax = watch('dynamic_source')?.split(':')[1]?.split('-')[1] || '10';
-                                setValue('dynamic_source', `range:${e.target.value}-${currentMax}`);
-                            }}
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label className="text-xs">Máximo</Label>
-                        <Input 
-                            type="number"
-                            placeholder="10"
-                            value={watch('dynamic_source')?.split(':')[1]?.split('-')[1] || '10'}
-                            onChange={(e) => {
-                                const currentMin = watch('dynamic_source')?.split(':')[1]?.split('-')[0] || '0';
-                                setValue('dynamic_source', `range:${currentMin}-${e.target.value}`);
-                            }}
-                        />
-                    </div>
-                 </div>
-               )}
-          </div>
+                 {watch('dynamic_source')?.startsWith('range:') && (
+                   <div className="grid grid-cols-2 gap-4 mt-2">
+                      <div className="space-y-1">
+                          <Label className="text-xs">Mínimo</Label>
+                          <Input 
+                              type="number"
+                              placeholder="0"
+                              value={watch('dynamic_source')?.split(':')[1]?.split('-')[0] || '0'}
+                              onChange={(e) => {
+                                  const currentMax = watch('dynamic_source')?.split(':')[1]?.split('-')[1] || '10';
+                                  setValue('dynamic_source', `range:${e.target.value}-${currentMax}`);
+                              }}
+                          />
+                      </div>
+                      <div className="space-y-1">
+                          <Label className="text-xs">Máximo</Label>
+                          <Input 
+                              type="number"
+                              placeholder="10"
+                              value={watch('dynamic_source')?.split(':')[1]?.split('-')[1] || '10'}
+                              onChange={(e) => {
+                                  const currentMin = watch('dynamic_source')?.split(':')[1]?.split('-')[0] || '0';
+                                  setValue('dynamic_source', `range:${currentMin}-${e.target.value}`);
+                              }}
+                          />
+                      </div>
+                   </div>
+                 )}
+            </div>
+          )}
 
           {/* Linked Section */}
           <div className="space-y-2">
@@ -224,7 +225,7 @@ export const FieldEditorSheet: React.FC<FieldEditorSheetProps> = ({
             />
           </div>
 
-          {isOptionType && (
+          {isOptionType && (!watch('dynamic_source') || watch('dynamic_source') === 'static') && (
             <div className="space-y-4 rounded-md border p-4 bg-muted/20">
               <div className="flex items-center justify-between">
                 <Label>Opciones</Label>

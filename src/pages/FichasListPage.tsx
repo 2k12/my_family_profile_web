@@ -193,11 +193,18 @@ export function FichasListPage() {
                     </TableCell>
                     <TableCell>{new Date(ficha.updated_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" asChild>
-                        <Link to={`/admin/fichas/${ficha.id}/edit`}>
-                        <Edit className="h-4 w-4" />
-                        </Link>
-                    </Button>
+                    <div className="flex items-center -space-x-px text-right justify-end">
+                        <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="h-8 w-8 rounded-md focus:z-10"
+                            asChild
+                        >
+                            <Link to={`/admin/fichas/${ficha.id}/edit`}>
+                                <Edit className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </div>
                     </TableCell>
                 </TableRow>
                 ))
@@ -236,11 +243,19 @@ export function FichasListPage() {
                                 </div>
                             </div>
                         </div>
-                        <Button variant="ghost" size="icon" asChild onClick={(e) => e.stopPropagation()}>
-                            <Link to={`/admin/fichas/${ficha.id}/edit`}>
-                                <Edit className="h-4 w-4" />
-                            </Link>
-                        </Button>
+                        <div className="flex items-center -space-x-px">
+                            <Button 
+                                variant="outline" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-md focus:z-10"
+                                asChild 
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <Link to={`/admin/fichas/${ficha.id}/edit`}>
+                                    <Edit className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </div>
                     </div>
                     
                     <div className="flex items-center justify-between mt-2 pt-2 border-t">
