@@ -179,6 +179,7 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
           // Access errors safely with reactivity
           const error = (formState.errors[name] as any)?.[index]?.[col];
           const errorMessage = error?.message;
+          const isRequired = fieldDef?.required || false;
 
           return (
              <div className="relative">
@@ -187,7 +188,9 @@ export function ArrayField({ name, label, allFields, renderMode = 'table' }: Arr
                         validate: (value) => {
                             if (!value) return true; 
                             if (col === 'cedula' && !isValidCedula(value)) {
-                                return "Cédula incorrecta";
+                                if (isRequired) {
+                                    return "Cédula incorrecta";
+                                }
                             }
                             return true;
                         }
