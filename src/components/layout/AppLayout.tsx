@@ -3,6 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth } from '@/lib/auth';
 import type { User } from '@/types';
 import { Button } from '@/components/ui/button';
+import { identifyUser } from '@/lib/clarity';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +33,9 @@ export const AppLayout = () => {
         }
         const currentUser = auth.getUser();
         setUser(currentUser);
+        if (currentUser) {
+            identifyUser(currentUser.id, currentUser.name, currentUser.email, currentUser.role);
+        }
 
         // Protect Admin Routes
         if (location.pathname.startsWith('/admin') && currentUser?.role !== 'ADMIN') {
