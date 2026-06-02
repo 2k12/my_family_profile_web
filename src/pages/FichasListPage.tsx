@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, FileText, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Edit, FileText, CheckCircle, XCircle, Clock, FileSpreadsheet, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
@@ -33,6 +33,7 @@ export function FichasListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     fetchFichas(currentPage);
@@ -90,6 +91,38 @@ export function FichasListPage() {
     }
   };
 
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      toast.loading("Generando Excel...", { id: "export-excel" });
+
+      const response = await api.get("/web/fichas/export/excel", {
+        responseType: "blob",
+      });
+
+      // Extraer nombre de archivo de la cabecera, con fallback
+      const disposition = response.headers["content-disposition"] as string | undefined;
+      const match = disposition?.match(/filename="?([^"]+)"?/);
+      const filename = match?.[1] || `Fichas_Familiares_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Excel exportado correctamente", { id: "export-excel" });
+    } catch (error) {
+      console.error("Error exporting excel:", error);
+      toast.error("Error al exportar el Excel", { id: "export-excel" });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-8 space-y-4">
@@ -109,11 +142,23 @@ export function FichasListPage() {
 
   return (
     <div className="container mx-auto p-8 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Fichas Familiares</h2>
           <p className="text-muted-foreground">Listado de fichas registradas en el sistema.</p>
         </div>
+        <Button
+          onClick={handleExportExcel}
+          disabled={isExporting}
+          className="gap-2 w-full sm:w-auto"
+        >
+          {isExporting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <FileSpreadsheet className="h-4 w-4" />
+          )}
+          {isExporting ? "Exportando..." : "Exportar Excel"}
+        </Button>
       </div>
 
       {/* Bulk Actions Toolbar */}

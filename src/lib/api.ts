@@ -1,8 +1,11 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://myfamilyprofilebackend-production.up.railway.app/api",
-  //   baseURL: "http://localhost:8000/api",
+  // Configurable por entorno: define VITE_API_URL en .env.local para apuntar a tu API local.
+  // Si no se define, usa producción (Railway).
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    "https://myfamilyprofilebackend-production.up.railway.app/api",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
